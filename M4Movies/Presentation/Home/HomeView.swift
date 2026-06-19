@@ -13,8 +13,7 @@ struct HomeView: View {
         NavigationStack {
             Group {
                 if viewModel.isLoading && viewModel.movies.isEmpty {
-                    ProgressView("Loading movies...")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    MovieGridSkeleton(columns: columns)
                 } else if let error = viewModel.errorMessage, viewModel.movies.isEmpty {
                     ErrorView(message: error) {
                         Task { await viewModel.retry() }
@@ -53,7 +52,7 @@ private struct MovieCard: View {
                 case .empty:
                     Rectangle()
                         .fill(Color(.systemGray5))
-                        .overlay(ProgressView())
+                        .shimmering()
                 case .success(let image):
                     image
                         .resizable()
@@ -98,6 +97,65 @@ private struct MovieCard: View {
         .padding(8)
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+// MARK: - Skeleton Loading
+
+private struct MovieGridSkeleton: View {
+
+    let columns: [GridItem]
+
+    private let placeholderCount = 8
+
+    var body: some View {
+        ScrollView {
+            LazyVGrid(columns: columns, spacing: 16) {
+                ForEach(0..<placeholderCount, id: \.self) { _ in
+                    MovieCardSkeleton()
+                }
+            }
+            .padding(.horizontal)
+            .padding(.top, 8)
+        }
+        .scrollDisabled(true)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Loading movies")
+    }
+}
+
+private struct MovieCardSkeleton: View {
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color(.systemGray5))
+                .frame(height: 220)
+
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color(.systemGray5))
+                .frame(height: 14)
+
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color(.systemGray5))
+                .frame(width: 90, height: 14)
+
+            HStack(spacing: 4) {
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color(.systemGray5))
+                    .frame(width: 44, height: 12)
+
+                Spacer()
+
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color(.systemGray5))
+                    .frame(width: 36, height: 12)
+            }
+        }
+        .padding(8)
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shimmering()
     }
 }
 
