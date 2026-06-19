@@ -1,0 +1,12 @@
+import Foundation
+
+enum Config {
+
+    static let apiKey = "YOUR_TMDB_API_KEY"
+
+    static let baseURL =
+    "https://api.themoviedb.org/3"
+
+    static let imageBaseURL =
+    "https://image.tmdb.org/t/p/w500"
+}
