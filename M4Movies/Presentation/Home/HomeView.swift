@@ -23,10 +23,26 @@ struct HomeView: View {
                         LazyVGrid(columns: columns, spacing: 16) {
                             ForEach(viewModel.movies) { movie in
                                 MovieCard(movie: movie)
+                                    .onAppear {
+                                        Task { await viewModel.loadMoreIfNeeded(currentItem: movie) }
+                                    }
+                            }
+
+                            if viewModel.isLoadingMore {
+                                ForEach(0..<4, id: \.self) { _ in
+                                    MovieCardSkeleton()
+                                }
                             }
                         }
                         .padding(.horizontal)
                         .padding(.top, 8)
+                        .animation(.easeInOut(duration: 0.2), value: viewModel.isLoadingMore)
+
+                        LoadMoreFooter(
+                            errorMessage: viewModel.loadMoreError,
+                            hasMorePages: viewModel.hasMorePages,
+                            onRetry: { Task { await viewModel.retryLoadMore() } }
+                        )
                     }
                     .refreshable {
                         await viewModel.refresh()
@@ -172,6 +188,39 @@ private struct MovieCardSkeleton: View {
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shimmering()
+    }
+}
+
+// MARK: - Load More Footer
+
+private struct LoadMoreFooter: View {
+
+    let errorMessage: String?
+    let hasMorePages: Bool
+    let onRetry: () -> Void
+
+    var body: some View {
+        Group {
+            if let errorMessage {
+                VStack(spacing: 8) {
+                    Text(errorMessage)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+
+                    Button("Retry", action: onRetry)
+                        .buttonStyle(.bordered)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+            } else if !hasMorePages {
+                Text("You've reached the end")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+            }
+        }
     }
 }
 
