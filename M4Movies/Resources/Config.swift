@@ -2,7 +2,7 @@ import Foundation
 
 enum Config {
 
-    static let apiKey = "YOUR_TMDB_API_KEY"
+    static let apiKey = "906a29f48a562561be80987214d1ed77"
 
     static let baseURL =
     "https://api.themoviedb.org/3"
