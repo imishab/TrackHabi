@@ -25,4 +25,11 @@ final class MovieRepositoryImpl: MovieRepository {
         )
         return response.results.map { $0.toDomain() }
     }
+
+    func fetchMovieDetails(id: Int) async throws -> MovieDetails {
+        let response: MovieDetailsDTO = try await apiClient.request(
+            endpoint: .details(id: id)
+        )
+        return response.toDomain()
+    }
 }

@@ -3,6 +3,7 @@ import SwiftUI
 struct HomeView: View {
 
     @State private var viewModel = HomeViewModel()
+    @Namespace private var transitionNamespace
 
     private let columns = [
         GridItem(.flexible()),
@@ -22,10 +23,14 @@ struct HomeView: View {
                     ScrollView {
                         LazyVGrid(columns: columns, spacing: 16) {
                             ForEach(viewModel.movies) { movie in
-                                MovieCard(movie: movie)
-                                    .onAppear {
-                                        Task { await viewModel.loadMoreIfNeeded(currentItem: movie) }
-                                    }
+                                NavigationLink(value: movie) {
+                                    MovieCard(movie: movie)
+                                }
+                                .buttonStyle(.plain)
+                                .matchedTransitionSource(id: movie.id, in: transitionNamespace)
+                                .onAppear {
+                                    Task { await viewModel.loadMoreIfNeeded(currentItem: movie) }
+                                }
                             }
 
                             if viewModel.isLoadingMore {
@@ -51,6 +56,10 @@ struct HomeView: View {
             }
             .navigationTitle("Popular Movies")
             .navigationBarTitleDisplayMode(.large)
+            .navigationDestination(for: Movie.self) { movie in
+                MovieDetailsView(movie: movie)
+                    .navigationTransition(.zoom(sourceID: movie.id, in: transitionNamespace))
+            }
         }
         .task {
             await viewModel.loadMovies()
