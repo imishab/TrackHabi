@@ -5,9 +5,16 @@ struct MovieDTO: Codable {
     let id: Int
     let title: String
     let overview: String
-    let poster_path: String?
-    let release_date: String
-    let vote_average: Double
+    let posterPath: String?
+    let releaseDate: String
+    let voteAverage: Double
+
+    enum CodingKeys: String, CodingKey {
+        case id, title, overview
+        case posterPath = "poster_path"
+        case releaseDate = "release_date"
+        case voteAverage = "vote_average"
+    }
 }
 
 extension MovieDTO {
@@ -18,9 +25,9 @@ extension MovieDTO {
             id: id,
             title: title,
             overview: overview,
-            posterPath: poster_path,
-            releaseDate: release_date,
-            voteAverage: vote_average
+            posterPath: posterPath,
+            releaseDate: releaseDate,
+            voteAverage: voteAverage
         )
     }
 }

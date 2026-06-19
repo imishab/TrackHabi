@@ -23,4 +23,8 @@ extension Movie {
             "\(Config.imageBaseURL)\(posterPath)"
         )
     }
+
+    var releaseYear: String {
+        String(releaseDate.prefix(4))
+    }
 }
