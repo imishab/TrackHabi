@@ -7,6 +7,7 @@ final class HomeViewModel {
     var movies: [Movie] = []
     var isLoading = false
     var errorMessage: String?
+    var refreshError: String?
 
     private let repository: MovieRepository
     private var currentPage = 1
@@ -16,19 +17,35 @@ final class HomeViewModel {
     }
 
     func loadMovies() async {
+        guard movies.isEmpty else { return }
         isLoading = true
-        errorMessage = nil
-
-        do {
-            movies = try await repository.fetchPopularMovies(page: currentPage)
-        } catch {
-            errorMessage = "Failed to load movies. Please try again."
-        }
-
+        await fetchFirstPage(isRefresh: false)
         isLoading = false
     }
 
+    func refresh() async {
+        await fetchFirstPage(isRefresh: true)
+    }
+
     func retry() async {
-        await loadMovies()
+        errorMessage = nil
+        isLoading = true
+        await fetchFirstPage(isRefresh: false)
+        isLoading = false
+    }
+
+    private func fetchFirstPage(isRefresh: Bool) async {
+        currentPage = 1
+        do {
+            movies = try await repository.fetchPopularMovies(page: currentPage)
+            errorMessage = nil
+            refreshError = nil
+        } catch {
+            if isRefresh && !movies.isEmpty {
+                refreshError = "Couldn't refresh movies. Please try again."
+            } else {
+                errorMessage = "Failed to load movies. Please try again."
+            }
+        }
     }
 }

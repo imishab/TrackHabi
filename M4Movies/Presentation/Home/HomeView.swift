@@ -28,6 +28,9 @@ struct HomeView: View {
                         .padding(.horizontal)
                         .padding(.top, 8)
                     }
+                    .refreshable {
+                        await viewModel.refresh()
+                    }
                 }
             }
             .navigationTitle("Popular Movies")
@@ -36,6 +39,19 @@ struct HomeView: View {
         .task {
             await viewModel.loadMovies()
         }
+        .alert(
+            "Couldn't Refresh",
+            isPresented: refreshErrorPresented,
+            actions: { Button("OK", role: .cancel) {} },
+            message: { Text(viewModel.refreshError ?? "") }
+        )
+    }
+
+    private var refreshErrorPresented: Binding<Bool> {
+        Binding(
+            get: { viewModel.refreshError != nil },
+            set: { if !$0 { viewModel.refreshError = nil } }
+        )
     }
 }
 
