@@ -13,6 +13,13 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
+                Text("M4Movies")
+                    .font(.title.bold())
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+                    .padding(.top, 20)
+                    .padding(.bottom, 16)
+
                 CategoryPicker(
                     categories: MovieCategory.allCases,
                     selected: viewModel.selectedCategory,
@@ -26,8 +33,7 @@ struct HomeView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Text("M4Movies")
-                        .font(.title2.bold())
+                    EmptyView()
                 }
             }
             .navigationDestination(for: Movie.self) { movie in
