@@ -3,7 +3,7 @@ import Foundation
 enum Endpoint {
 
     case popularMovies(page: Int)
-    case search(query: String)
+    case search(query: String, page: Int)
     case details(id: Int)
 }
 
@@ -20,7 +20,7 @@ extension Endpoint {
                 "\(Config.baseURL)/movie/popular?api_key=\(Config.apiKey)&page=\(page)"
             )
 
-        case .search(let query):
+        case .search(let query, let page):
 
             let encoded =
             query.addingPercentEncoding(
@@ -29,7 +29,7 @@ extension Endpoint {
 
             return URL(
                 string:
-                "\(Config.baseURL)/search/movie?api_key=\(Config.apiKey)&query=\(encoded)"
+                "\(Config.baseURL)/search/movie?api_key=\(Config.apiKey)&query=\(encoded)&page=\(page)&include_adult=false"
             )
 
         case .details(let id):

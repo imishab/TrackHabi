@@ -19,11 +19,15 @@ final class MovieRepositoryImpl: MovieRepository {
         )
     }
 
-    func searchMovies(query: String) async throws -> [Movie] {
+    func searchMovies(query: String, page: Int) async throws -> PagedMovies {
         let response: MovieListResponseDTO = try await apiClient.request(
-            endpoint: .search(query: query)
+            endpoint: .search(query: query, page: page)
         )
-        return response.results.map { $0.toDomain() }
+        return PagedMovies(
+            movies: response.results.map { $0.toDomain() },
+            page: response.page,
+            totalPages: response.totalPages
+        )
     }
 
     func fetchMovieDetails(id: Int) async throws -> MovieDetails {
