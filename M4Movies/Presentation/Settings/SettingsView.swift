@@ -2,11 +2,19 @@ import SwiftUI
 
 struct SettingsView: View {
 
+    @State private var showingClearConfirmation = false
+
+    private let recentSearchRepository: RecentSearchRepository = RecentSearchRepositoryImpl()
+
     var body: some View {
         NavigationStack {
             Form {
-                Section("Appearance") {
-                    Label("Theme", systemImage: "paintbrush")
+                Section {
+                    Button(role: .destructive) {
+                        showingClearConfirmation = true
+                    } label: {
+                        Label("Clear Search History", systemImage: "trash")
+                    }
                 }
 
                 Section("About") {
@@ -14,6 +22,18 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+        }
+        .confirmationDialog(
+            "Clear Search History?",
+            isPresented: $showingClearConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Clear", role: .destructive) {
+                try? recentSearchRepository.clearAll()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will remove all of your recent searches.")
         }
     }
 
