@@ -52,7 +52,7 @@ struct HomeView: View {
 
     private var titleHeader: some View {
         HStack(spacing: 16) {
-            Text("Movie title")
+            Text("Movies")
                 .font(.largeTitle.bold())
 
             Spacer()
@@ -64,9 +64,9 @@ struct HomeView: View {
                 Image("UserAvatar")
                     .resizable()
                     .scaledToFit()
-                    .padding(3)
+                    .padding(10)
             }
-            .frame(width: 54, height: 54)
+            .frame(width: 50, height: 50)
             .clipShape(Circle())
             .overlay {
                 Circle()
