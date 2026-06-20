@@ -12,6 +12,7 @@ struct M4MoviesApp: App {
     var body: some Scene {
         WindowGroup {
             MainTabView()
+                .preferredColorScheme(.dark)
         }
     }
 }

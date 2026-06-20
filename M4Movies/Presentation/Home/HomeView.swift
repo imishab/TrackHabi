@@ -135,9 +135,6 @@ private struct MovieCard: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(8)
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 
@@ -193,9 +190,6 @@ private struct MovieCardSkeleton: View {
                     .frame(width: 36, height: 12)
             }
         }
-        .padding(8)
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
         .shimmering()
     }
 }
