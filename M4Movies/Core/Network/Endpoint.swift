@@ -2,7 +2,7 @@ import Foundation
 
 enum Endpoint {
 
-    case popularMovies(page: Int)
+    case movieList(category: MovieCategory, page: Int)
     case search(query: String, page: Int)
     case details(id: Int)
 }
@@ -13,11 +13,11 @@ extension Endpoint {
 
         switch self {
 
-        case .popularMovies(let page):
+        case .movieList(let category, let page):
 
             return URL(
                 string:
-                "\(Config.baseURL)/movie/popular?api_key=\(Config.apiKey)&page=\(page)"
+                "\(Config.baseURL)/movie/\(category.path)?api_key=\(Config.apiKey)&page=\(page)"
             )
 
         case .search(let query, let page):

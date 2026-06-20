@@ -4,6 +4,7 @@ import Foundation
 @Observable
 final class HomeViewModel {
 
+    var selectedCategory: MovieCategory = .popular
     var movies: [Movie] = []
     var isLoading = false
     var isLoadingMore = false
@@ -24,6 +25,12 @@ final class HomeViewModel {
 
     var hasMorePages: Bool {
         currentPage < totalPages
+    }
+
+    func selectCategory(_ category: MovieCategory) {
+        guard category != selectedCategory else { return }
+        selectedCategory = category
+        resetForReload()
     }
 
     func loadMovies() async {
@@ -59,9 +66,23 @@ final class HomeViewModel {
         await fetchNextPage()
     }
 
+    private func resetForReload() {
+        movies = []
+        currentPage = 0
+        totalPages = 1
+        prefetchTriggerID = nil
+        errorMessage = nil
+        refreshError = nil
+        loadMoreError = nil
+        isLoading = true
+    }
+
     private func fetchInitialPage(isRefresh: Bool) async {
+        let category = selectedCategory
         do {
-            let result = try await repository.fetchPopularMovies(page: 1)
+            let result = try await repository.fetchMovies(category: category, page: 1)
+            guard category == selectedCategory else { return }
+
             movies = result.movies
             currentPage = result.page
             totalPages = result.totalPages
@@ -70,6 +91,8 @@ final class HomeViewModel {
             loadMoreError = nil
             updatePrefetchTrigger()
         } catch {
+            guard category == selectedCategory else { return }
+            if Task.isCancelled { return }
             if isRefresh && !movies.isEmpty {
                 refreshError = "Couldn't refresh movies. Please try again."
             } else {
@@ -83,14 +106,19 @@ final class HomeViewModel {
         isLoadingMore = true
         defer { isLoadingMore = false }
 
+        let category = selectedCategory
         do {
-            let result = try await repository.fetchPopularMovies(page: currentPage + 1)
+            let result = try await repository.fetchMovies(category: category, page: currentPage + 1)
+            guard category == selectedCategory else { return }
+
             movies.append(contentsOf: result.movies)
             currentPage = result.page
             totalPages = result.totalPages
             loadMoreError = nil
             updatePrefetchTrigger()
         } catch {
+            guard category == selectedCategory else { return }
+            if Task.isCancelled { return }
             loadMoreError = "Couldn't load more. Tap to retry."
         }
     }

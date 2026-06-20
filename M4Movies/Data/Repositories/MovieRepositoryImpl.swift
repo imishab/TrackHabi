@@ -8,9 +8,9 @@ final class MovieRepositoryImpl: MovieRepository {
         self.apiClient = apiClient
     }
 
-    func fetchPopularMovies(page: Int) async throws -> PagedMovies {
+    func fetchMovies(category: MovieCategory, page: Int) async throws -> PagedMovies {
         let response: MovieListResponseDTO = try await apiClient.request(
-            endpoint: .popularMovies(page: page)
+            endpoint: .movieList(category: category, page: page)
         )
         return PagedMovies(
             movies: response.results.map { $0.toDomain() },
