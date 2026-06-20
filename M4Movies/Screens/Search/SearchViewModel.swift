@@ -17,6 +17,9 @@ final class SearchViewModel {
     var isLoadingMore = false
     var loadMoreError: String?
     var recentSearches: [RecentSearch] = []
+    var popularMovies: [Movie] = []
+    var topRatedMovies: [Movie] = []
+    var isLoadingRecommendations = false
 
     private let movieRepository: MovieRepository
     private let recentRepository: RecentSearchRepository
@@ -29,6 +32,7 @@ final class SearchViewModel {
     private let debounce: Duration = .milliseconds(350)
     private let prefetchOffset = 5
     private let recentsLimit = 10
+    private let recommendationLimit = 12
 
     init(
         movieRepository: MovieRepository = MovieRepositoryImpl(),
@@ -42,8 +46,9 @@ final class SearchViewModel {
         currentPage < totalPages
     }
 
-    func onAppear() {
+    func onAppear() async {
         loadRecents()
+        await loadRecommendations()
     }
 
     func onQueryChange(_ rawQuery: String) {
@@ -103,6 +108,30 @@ final class SearchViewModel {
 
     private func loadRecents() {
         recentSearches = (try? recentRepository.recent(limit: recentsLimit)) ?? []
+    }
+
+    private func loadRecommendations() async {
+        guard popularMovies.isEmpty, topRatedMovies.isEmpty else { return }
+
+        isLoadingRecommendations = true
+        defer { isLoadingRecommendations = false }
+
+        async let popularResult = fetchRecommendations(for: .popular)
+        async let topRatedResult = fetchRecommendations(for: .topRated)
+
+        let (popular, topRated) = await (popularResult, topRatedResult)
+
+        if let popular {
+            popularMovies = Array(popular.movies.prefix(recommendationLimit))
+        }
+
+        if let topRated {
+            topRatedMovies = Array(topRated.movies.prefix(recommendationLimit))
+        }
+    }
+
+    private func fetchRecommendations(for category: MovieCategory) async -> PagedMovies? {
+        try? await movieRepository.fetchMovies(category: category, page: 1)
     }
 
     private func reset() {

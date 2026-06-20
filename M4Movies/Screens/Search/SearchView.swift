@@ -30,7 +30,7 @@ struct SearchView: View {
             viewModel.onQueryChange(newValue)
         }
         .task {
-            viewModel.onAppear()
+            await viewModel.onAppear()
         }
     }
 
@@ -52,18 +52,40 @@ struct SearchView: View {
         }
     }
 
-    @ViewBuilder
     private var idleContent: some View {
-        if viewModel.recentSearches.isEmpty {
-            EmptyState()
-        } else {
-            RecentSearchesSection(
-                recents: viewModel.recentSearches,
-                onSelect: { recent in query = recent.keyword },
-                onRemove: { viewModel.removeRecent($0) },
-                onClearAll: { viewModel.clearAllRecents() }
-            )
+        ScrollView {
+            LazyVStack(spacing: 28) {
+                if !viewModel.recentSearches.isEmpty {
+                    RecentSearchesSection(
+                        recents: viewModel.recentSearches,
+                        onSelect: { recent in query = recent.keyword },
+                        onRemove: { viewModel.removeRecent($0) },
+                        onClearAll: { viewModel.clearAllRecents() }
+                    )
+                }
+
+                if viewModel.isLoadingRecommendations &&
+                    viewModel.popularMovies.isEmpty &&
+                    viewModel.topRatedMovies.isEmpty {
+                    SearchRecommendationSkeletons()
+                } else {
+                    SearchMovieSection(
+                        title: "Popular",
+                        movies: viewModel.popularMovies,
+                        onSelect: { path.append($0) }
+                    )
+
+                    SearchMovieSection(
+                        title: "Top Rated",
+                        movies: viewModel.topRatedMovies,
+                        onSelect: { path.append($0) }
+                    )
+                }
+            }
+            .padding(.top, 16)
+            .padding(.bottom, 32)
         }
+        .scrollDismissesKeyboard(.immediately)
     }
 
     private var resultsGrid: some View {
@@ -139,9 +161,7 @@ private struct RecentSearchesSection: View {
                 .padding(.horizontal, 20)
             }
 
-            Spacer()
         }
-        .padding(.top, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
@@ -188,16 +208,67 @@ private struct RecentSearchChip: View {
     }
 }
 
-// MARK: - Empty State
+// MARK: - Recommendations
 
-private struct EmptyState: View {
+private struct SearchMovieSection: View {
+
+    let title: String
+    let movies: [Movie]
+    let onSelect: (Movie) -> Void
+
+    private let cardWidth: CGFloat = 154
 
     var body: some View {
-        ContentUnavailableView(
-            "Search Movies",
-            systemImage: "magnifyingglass",
-            description: Text("Find movies by title, character, or keyword.")
-        )
+        if !movies.isEmpty {
+            VStack(alignment: .leading, spacing: 14) {
+                Text(title)
+                    .font(.title2.bold())
+                    .padding(.horizontal, 16)
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(alignment: .top, spacing: 14) {
+                        ForEach(movies) { movie in
+                            Button {
+                                onSelect(movie)
+                            } label: {
+                                MovieCard(movie: movie)
+                                    .frame(width: cardWidth)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                }
+                .scrollClipDisabled()
+            }
+        }
+    }
+}
+
+private struct SearchRecommendationSkeletons: View {
+
+    var body: some View {
+        VStack(spacing: 28) {
+            ForEach(["Popular", "Top Rated"], id: \.self) { title in
+                VStack(alignment: .leading, spacing: 14) {
+                    Text(title)
+                        .font(.title2.bold())
+                        .padding(.horizontal, 16)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 14) {
+                            ForEach(0..<4, id: \.self) { _ in
+                                MovieCardSkeleton()
+                                    .frame(width: 154)
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                    }
+                    .scrollDisabled(true)
+                    .scrollClipDisabled()
+                }
+            }
+        }
     }
 }
 
