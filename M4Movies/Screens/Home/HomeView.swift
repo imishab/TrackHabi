@@ -51,11 +51,31 @@ struct HomeView: View {
     }
 
     private var titleHeader: some View {
-        Text("Movies")
-            .font(.largeTitle.bold())
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
+        HStack(spacing: 16) {
+            Text("Movie title")
+                .font(.largeTitle.bold())
+
+            Spacer()
+
+            ZStack {
+                Circle()
+                    .fill(Color(.secondarySystemBackground))
+
+                Image("UserAvatar")
+                    .resizable()
+                    .scaledToFit()
+                    .padding(3)
+            }
+            .frame(width: 54, height: 54)
+            .clipShape(Circle())
+            .overlay {
+                Circle()
+                    .stroke(Color.primary.opacity(0.1), lineWidth: 1)
+            }
+            .accessibilityLabel("User profile")
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 8)
     }
 
     private var movieSections: some View {
