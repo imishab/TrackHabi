@@ -16,8 +16,10 @@ final class SearchViewModel {
     var movies: [Movie] = []
     var isLoadingMore = false
     var loadMoreError: String?
+    var recentSearches: [RecentSearch] = []
 
-    private let repository: MovieRepository
+    private let movieRepository: MovieRepository
+    private let recentRepository: RecentSearchRepository
     private var searchTask: Task<Void, Never>?
     private var activeQuery = ""
     private var currentPage = 0
@@ -26,13 +28,22 @@ final class SearchViewModel {
 
     private let debounce: Duration = .milliseconds(350)
     private let prefetchOffset = 5
+    private let recentsLimit = 10
 
-    init(repository: MovieRepository = MovieRepositoryImpl()) {
-        self.repository = repository
+    init(
+        movieRepository: MovieRepository = MovieRepositoryImpl(),
+        recentRepository: RecentSearchRepository? = nil
+    ) {
+        self.movieRepository = movieRepository
+        self.recentRepository = recentRepository ?? RecentSearchRepositoryImpl()
     }
 
     var hasMorePages: Bool {
         currentPage < totalPages
+    }
+
+    func onAppear() {
+        loadRecents()
     }
 
     func onQueryChange(_ rawQuery: String) {
@@ -73,6 +84,27 @@ final class SearchViewModel {
         await runSearch(query: activeQuery, page: 1, isInitial: true)
     }
 
+    func recordResultOpened() {
+        let keyword = activeQuery
+        guard !keyword.isEmpty else { return }
+        try? recentRepository.save(keyword: keyword)
+        loadRecents()
+    }
+
+    func removeRecent(_ recent: RecentSearch) {
+        try? recentRepository.delete(keyword: recent.keyword)
+        loadRecents()
+    }
+
+    func clearAllRecents() {
+        try? recentRepository.clearAll()
+        loadRecents()
+    }
+
+    private func loadRecents() {
+        recentSearches = (try? recentRepository.recent(limit: recentsLimit)) ?? []
+    }
+
     private func reset() {
         searchTask?.cancel()
         activeQuery = ""
@@ -94,7 +126,7 @@ final class SearchViewModel {
         defer { if !isInitial { isLoadingMore = false } }
 
         do {
-            let result = try await repository.searchMovies(query: query, page: page)
+            let result = try await movieRepository.searchMovies(query: query, page: page)
 
             guard query == activeQuery else { return }
 

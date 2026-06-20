@@ -4,6 +4,7 @@ struct SearchView: View {
 
     @State private var viewModel = SearchViewModel()
     @State private var query = ""
+    @State private var path = NavigationPath()
     @Namespace private var transitionNamespace
 
     private let columns = [
@@ -12,7 +13,7 @@ struct SearchView: View {
     ]
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             content
                 .navigationTitle("Search")
                 .navigationDestination(for: Movie.self) { movie in
@@ -28,13 +29,16 @@ struct SearchView: View {
         .onChange(of: query) { _, newValue in
             viewModel.onQueryChange(newValue)
         }
+        .task {
+            viewModel.onAppear()
+        }
     }
 
     @ViewBuilder
     private var content: some View {
         switch viewModel.phase {
         case .idle:
-            EmptyState()
+            idleContent
         case .loading:
             MovieGridSkeleton(columns: columns)
         case .results:
@@ -48,11 +52,28 @@ struct SearchView: View {
         }
     }
 
+    @ViewBuilder
+    private var idleContent: some View {
+        if viewModel.recentSearches.isEmpty {
+            EmptyState()
+        } else {
+            RecentSearchesSection(
+                recents: viewModel.recentSearches,
+                onSelect: { recent in query = recent.keyword },
+                onRemove: { viewModel.removeRecent($0) },
+                onClearAll: { viewModel.clearAllRecents() }
+            )
+        }
+    }
+
     private var resultsGrid: some View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: 16) {
                 ForEach(viewModel.movies) { movie in
-                    NavigationLink(value: movie) {
+                    Button {
+                        viewModel.recordResultOpened()
+                        path.append(movie)
+                    } label: {
                         MovieCard(movie: movie)
                     }
                     .buttonStyle(.plain)
@@ -79,6 +100,91 @@ struct SearchView: View {
             )
         }
         .scrollDismissesKeyboard(.immediately)
+    }
+}
+
+// MARK: - Recent Searches
+
+private struct RecentSearchesSection: View {
+
+    let recents: [RecentSearch]
+    let onSelect: (RecentSearch) -> Void
+    let onRemove: (RecentSearch) -> Void
+    let onClearAll: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Text("Recent Searches")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                Button("Clear All", action: onClearAll)
+                    .font(.footnote.weight(.medium))
+            }
+            .padding(.horizontal, 20)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(recents) { recent in
+                        RecentSearchChip(
+                            keyword: recent.keyword,
+                            onTap: { onSelect(recent) },
+                            onRemove: { onRemove(recent) }
+                        )
+                    }
+                }
+                .padding(.horizontal, 20)
+            }
+
+            Spacer()
+        }
+        .padding(.top, 16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct RecentSearchChip: View {
+
+    let keyword: String
+    let onTap: () -> Void
+    let onRemove: () -> Void
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Button(action: onTap) {
+                HStack(spacing: 6) {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    Text(keyword)
+                        .font(.subheadline)
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                }
+            }
+            .buttonStyle(.plain)
+
+            Button(action: onRemove) {
+                Image(systemName: "xmark")
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(.secondary)
+                    .padding(2)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Remove \(keyword)")
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color(.tertiarySystemBackground))
+        .clipShape(Capsule())
+        .overlay(
+            Capsule()
+                .stroke(Color(.separator), lineWidth: 0.5)
+        )
     }
 }
 
