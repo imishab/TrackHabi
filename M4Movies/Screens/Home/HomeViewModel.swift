@@ -6,6 +6,7 @@ final class HomeViewModel {
 
     var selectedCategory: MovieCategory = .popular
     var movies: [Movie] = []
+    var featuredMovies: [Movie] = []
     var isLoading = false
     var isLoadingMore = false
     var errorMessage: String?
@@ -18,6 +19,7 @@ final class HomeViewModel {
     private var prefetchTriggerID: Movie.ID?
 
     private let prefetchOffset = 5
+    private let featuredCount = 5
 
     init(repository: MovieRepository = MovieRepositoryImpl()) {
         self.repository = repository
@@ -40,7 +42,18 @@ final class HomeViewModel {
         isLoading = false
     }
 
+    func loadFeatured(force: Bool = false) async {
+        guard force || featuredMovies.isEmpty else { return }
+        do {
+            let result = try await repository.fetchMovies(category: .popular, page: 1)
+            featuredMovies = Array(result.movies.prefix(featuredCount))
+        } catch {
+            // Silent — slider will simply stay hidden until next refresh.
+        }
+    }
+
     func refresh() async {
+        await loadFeatured(force: true)
         await fetchInitialPage(isRefresh: true)
     }
 

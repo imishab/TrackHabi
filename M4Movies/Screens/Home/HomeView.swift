@@ -12,30 +12,28 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                Text("M4Movies")
-                    .font(.title.bold())
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
-                    .padding(.top, 20)
-                    .padding(.bottom, 16)
+            ScrollView {
+                VStack(spacing: 20) {
+                    titleHeader
 
-                CategoryPicker(
-                    categories: MovieCategory.allCases,
-                    selected: viewModel.selectedCategory,
-                    onSelect: { viewModel.selectCategory($0) }
-                )
-                .padding(.top, 4)
-                .padding(.bottom, 8)
+                    if !viewModel.featuredMovies.isEmpty {
+                        HomeHeroSlider(movies: viewModel.featuredMovies)
+                    }
 
-                content
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    EmptyView()
+                    CategoryPicker(
+                        categories: MovieCategory.allCases,
+                        selected: viewModel.selectedCategory,
+                        onSelect: { viewModel.selectCategory($0) }
+                    )
+
+                    content
                 }
+                .padding(.bottom, 32)
             }
+            .refreshable {
+                await viewModel.refresh()
+            }
+            .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: Movie.self) { movie in
                 MovieDetailsView(movie: movie)
                     .navigationTransition(.zoom(sourceID: movie.id, in: transitionNamespace))
@@ -43,6 +41,9 @@ struct HomeView: View {
         }
         .task(id: viewModel.selectedCategory) {
             await viewModel.loadMovies()
+        }
+        .task {
+            await viewModel.loadFeatured()
         }
         .alert(
             "Couldn't Refresh",
@@ -52,21 +53,39 @@ struct HomeView: View {
         )
     }
 
+    private var titleHeader: some View {
+        Text("M4Movies")
+            .font(.largeTitle.bold())
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal)
+            .padding(.top, 8)
+    }
+
     @ViewBuilder
     private var content: some View {
         if viewModel.isLoading && viewModel.movies.isEmpty {
-            MovieGridSkeleton(columns: columns)
+            inlineGridSkeleton
         } else if let error = viewModel.errorMessage, viewModel.movies.isEmpty {
             ErrorView(message: error) {
                 Task { await viewModel.retry() }
             }
+            .frame(minHeight: 280)
         } else {
-            grid
+            gridContent
         }
     }
 
-    private var grid: some View {
-        ScrollView {
+    private var inlineGridSkeleton: some View {
+        LazyVGrid(columns: columns, spacing: 16) {
+            ForEach(0..<8, id: \.self) { _ in
+                MovieCardSkeleton()
+            }
+        }
+        .padding(.horizontal)
+    }
+
+    private var gridContent: some View {
+        VStack(spacing: 0) {
             LazyVGrid(columns: columns, spacing: 16) {
                 ForEach(viewModel.movies) { movie in
                     NavigationLink(value: movie) {
@@ -86,7 +105,6 @@ struct HomeView: View {
                 }
             }
             .padding(.horizontal)
-            .padding(.top, 8)
             .animation(.easeInOut(duration: 0.2), value: viewModel.isLoadingMore)
 
             LoadMoreFooter(
@@ -94,9 +112,6 @@ struct HomeView: View {
                 hasMorePages: viewModel.hasMorePages,
                 onRetry: { Task { await viewModel.retryLoadMore() } }
             )
-        }
-        .refreshable {
-            await viewModel.refresh()
         }
     }
 
