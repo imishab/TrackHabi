@@ -6,10 +6,10 @@ struct HomeHeroSlider: View {
 
     @State private var visibleID: Movie.ID?
 
-    private let cardHeight: CGFloat = 460
     private let cardSpacing: CGFloat = 14
     private let sidePadding: CGFloat = 16
     private let cardWidthRatio: CGFloat = 0.86
+    private let cardAspect: CGFloat = 2.0 / 3.0
 
     var body: some View {
         VStack(spacing: 14) {
@@ -18,7 +18,7 @@ struct HomeHeroSlider: View {
                     ForEach(movies) { movie in
                         NavigationLink(value: movie) {
                             HeroCard(movie: movie)
-                                .frame(height: cardHeight)
+                                .aspectRatio(cardAspect, contentMode: .fit)
                         }
                         .buttonStyle(.plain)
                         .containerRelativeFrame(.horizontal, alignment: .center) { width, _ in
