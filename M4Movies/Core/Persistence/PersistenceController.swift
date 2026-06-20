@@ -8,7 +8,7 @@ final class PersistenceController {
 
     init(inMemory: Bool = false) {
         container = NSPersistentContainer(
-            name: "M4Movies",
+            name: "Movies",
             managedObjectModel: Self.makeModel()
         )
 

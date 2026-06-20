@@ -4,140 +4,92 @@ import Foundation
 @Observable
 final class HomeViewModel {
 
-    var selectedCategory: MovieCategory = .popular
-    var movies: [Movie] = []
+    var popularMovies: [Movie] = []
+    var nowPlayingMovies: [Movie] = []
+    var topRatedMovies: [Movie] = []
     var featuredMovies: [Movie] = []
     var isLoading = false
-    var isLoadingMore = false
     var errorMessage: String?
     var refreshError: String?
-    var loadMoreError: String?
 
     private let repository: MovieRepository
-    private var currentPage = 0
-    private var totalPages = 1
-    private var prefetchTriggerID: Movie.ID?
-
-    private let prefetchOffset = 5
     private let featuredCount = 5
+    private let sectionPreviewCount = 12
 
     init(repository: MovieRepository = MovieRepositoryImpl()) {
         self.repository = repository
     }
 
-    var hasMorePages: Bool {
-        currentPage < totalPages
-    }
+    func loadContent() async {
+        guard popularMovies.isEmpty,
+              nowPlayingMovies.isEmpty,
+              topRatedMovies.isEmpty
+        else { return }
 
-    func selectCategory(_ category: MovieCategory) {
-        guard category != selectedCategory else { return }
-        selectedCategory = category
-        resetForReload()
-    }
-
-    func loadMovies() async {
-        guard movies.isEmpty else { return }
         isLoading = true
-        await fetchInitialPage(isRefresh: false)
+        await fetchSections(isRefresh: false)
         isLoading = false
     }
 
-    func loadFeatured(force: Bool = false) async {
-        guard force || featuredMovies.isEmpty else { return }
-        do {
-            let result = try await repository.fetchMovies(category: .popular, page: 1)
-            featuredMovies = Array(result.movies.prefix(featuredCount))
-        } catch {
-            // Silent — slider will simply stay hidden until next refresh.
-        }
-    }
-
     func refresh() async {
-        await loadFeatured(force: true)
-        await fetchInitialPage(isRefresh: true)
+        await fetchSections(isRefresh: true)
     }
 
     func retry() async {
         errorMessage = nil
         isLoading = true
-        await fetchInitialPage(isRefresh: false)
+        await fetchSections(isRefresh: false)
         isLoading = false
     }
 
-    func loadMoreIfNeeded(currentItem: Movie) async {
-        guard currentItem.id == prefetchTriggerID,
-              !isLoadingMore,
-              !isLoading,
-              hasMorePages,
-              loadMoreError == nil
-        else { return }
-        await fetchNextPage()
-    }
+    private func fetchSections(isRefresh: Bool) async {
+        async let popularResult = fetchFirstPage(for: .popular)
+        async let nowPlayingResult = fetchFirstPage(for: .nowPlaying)
+        async let topRatedResult = fetchFirstPage(for: .topRated)
 
-    func retryLoadMore() async {
-        loadMoreError = nil
-        await fetchNextPage()
-    }
+        let (popular, nowPlaying, topRated) = await (
+            popularResult,
+            nowPlayingResult,
+            topRatedResult
+        )
 
-    private func resetForReload() {
-        movies = []
-        currentPage = 0
-        totalPages = 1
-        prefetchTriggerID = nil
-        errorMessage = nil
-        refreshError = nil
-        loadMoreError = nil
-        isLoading = true
-    }
+        var loadedAnySection = false
 
-    private func fetchInitialPage(isRefresh: Bool) async {
-        let category = selectedCategory
-        do {
-            let result = try await repository.fetchMovies(category: category, page: 1)
-            guard category == selectedCategory else { return }
+        if let popular {
+            popularMovies = Array(popular.movies.prefix(sectionPreviewCount))
+            featuredMovies = Array(popular.movies.prefix(featuredCount))
+            loadedAnySection = true
+        }
 
-            movies = result.movies
-            currentPage = result.page
-            totalPages = result.totalPages
+        if let nowPlaying {
+            nowPlayingMovies = Array(nowPlaying.movies.prefix(sectionPreviewCount))
+            loadedAnySection = true
+        }
+
+        if let topRated {
+            topRatedMovies = Array(topRated.movies.prefix(sectionPreviewCount))
+            loadedAnySection = true
+        }
+
+        if loadedAnySection {
             errorMessage = nil
             refreshError = nil
-            loadMoreError = nil
-            updatePrefetchTrigger()
-        } catch {
-            guard category == selectedCategory else { return }
-            if Task.isCancelled { return }
-            if isRefresh && !movies.isEmpty {
-                refreshError = "Couldn't refresh movies. Please try again."
-            } else {
-                errorMessage = "Failed to load movies. Please try again."
-            }
+        } else if isRefresh && hasVisibleContent {
+            refreshError = "Couldn't refresh movies. Please try again."
+        } else {
+            errorMessage = "Failed to load movies. Please try again."
         }
     }
 
-    private func fetchNextPage() async {
-        guard hasMorePages else { return }
-        isLoadingMore = true
-        defer { isLoadingMore = false }
-
-        let category = selectedCategory
+    private func fetchFirstPage(for category: MovieCategory) async -> PagedMovies? {
         do {
-            let result = try await repository.fetchMovies(category: category, page: currentPage + 1)
-            guard category == selectedCategory else { return }
-
-            movies.append(contentsOf: result.movies)
-            currentPage = result.page
-            totalPages = result.totalPages
-            loadMoreError = nil
-            updatePrefetchTrigger()
+            return try await repository.fetchMovies(category: category, page: 1)
         } catch {
-            guard category == selectedCategory else { return }
-            if Task.isCancelled { return }
-            loadMoreError = "Couldn't load more. Tap to retry."
+            return nil
         }
     }
 
-    private func updatePrefetchTrigger() {
-        let triggerIndex = max(0, movies.count - prefetchOffset)
-        prefetchTriggerID = movies.indices.contains(triggerIndex) ? movies[triggerIndex].id : nil
+    private var hasVisibleContent: Bool {
+        !popularMovies.isEmpty || !nowPlayingMovies.isEmpty || !topRatedMovies.isEmpty
     }
 }
