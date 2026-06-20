@@ -44,17 +44,22 @@ search, and save movies in a polished dark-mode interface.
 
 2. Open `M4Movies.xcodeproj` in Xcode.
 
-3. Add your TMDB API key in `M4Movies/Resources/Config.swift`:
+3. Create your local configuration from the provided example:
+
+   ```bash
+   cp M4Movies/Resources/Config.swift.example M4Movies/Resources/Config.swift
+   ```
+
+4. Add your TMDB API key in `M4Movies/Resources/Config.swift`:
 
    ```swift
    static let apiKey = "YOUR_TMDB_API_KEY"
    ```
 
-4. Select an iOS 18.6+ simulator or device, then build and run the app.
+5. Select an iOS 18.6+ simulator or device, then build and run the app.
 
-> Keep production API keys out of source control. For a public repository,
-> store secrets in an ignored configuration file or inject them through build
-> settings.
+`Config.swift` is ignored by Git. Only the placeholder
+`Config.swift.example` should be committed.
 
 ## Architecture
 
@@ -90,4 +95,3 @@ For a deeper technical walkthrough, see
 ## Acknowledgements
 
 This product uses the TMDB API but is not endorsed or certified by TMDB.
-
