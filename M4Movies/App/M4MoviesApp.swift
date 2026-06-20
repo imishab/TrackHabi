@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct M4MoviesApp: App {
+
+    @State private var favoritesStore = FavoritesStore()
+
     var body: some Scene {
         WindowGroup {
             MainTabView()
+                .environment(favoritesStore)
                 .preferredColorScheme(.dark)
         }
     }

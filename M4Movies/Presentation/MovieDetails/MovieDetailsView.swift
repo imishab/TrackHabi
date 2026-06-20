@@ -40,12 +40,44 @@ struct MovieDetailsView: View {
         .background(Color(.systemBackground))
         .ignoresSafeArea(edges: .top)
         .toolbar(.hidden, for: .navigationBar)
+        .navigationBarBackButtonHidden(true)
         .overlay(alignment: .topLeading) {
             DismissButton { dismiss() }
+        }
+        .overlay(alignment: .topTrailing) {
+            FavoriteButton(movie: movie)
         }
         .task {
             await viewModel.load()
         }
+    }
+}
+
+// MARK: - Favorite Button
+
+private struct FavoriteButton: View {
+
+    let movie: Movie
+
+    @Environment(FavoritesStore.self) private var favoritesStore
+
+    var body: some View {
+        let isFavorite = favoritesStore.isFavorite(movie.id)
+
+        Button {
+            favoritesStore.toggle(movie)
+        } label: {
+            Image(systemName: isFavorite ? "heart.fill" : "heart")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(isFavorite ? .red : .white)
+                .symbolEffect(.bounce, value: isFavorite)
+                .padding(10)
+                .background(.ultraThinMaterial, in: Circle())
+                .overlay(Circle().stroke(.white.opacity(0.15), lineWidth: 0.5))
+        }
+        .padding(.trailing, 16)
+        .padding(.top, 8)
+        .accessibilityLabel(isFavorite ? "Remove from favorites" : "Add to favorites")
     }
 }
 
