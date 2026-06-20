@@ -11,7 +11,8 @@ struct SplashView: View {
             Image("logo")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 140, height: 140)
+                .frame(width: 90, height: 90)
+                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
                 .opacity(opacity)
         }
         .onAppear {
