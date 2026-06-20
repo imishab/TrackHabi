@@ -3,6 +3,7 @@ import SwiftUI
 struct HomeHeroSlider: View {
 
     let movies: [Movie]
+    let transitionNamespace: Namespace.ID
 
     @State private var visibleID: Movie.ID?
 
@@ -16,11 +17,22 @@ struct HomeHeroSlider: View {
             ScrollView(.horizontal) {
                 LazyHStack(spacing: cardSpacing) {
                     ForEach(movies) { movie in
-                        NavigationLink(value: movie) {
+                        let sourceID = HomeMovieTransitionSource.hero(movie.id)
+
+                        NavigationLink(
+                            value: HomeMovieRoute(
+                                movie: movie,
+                                sourceID: sourceID
+                            )
+                        ) {
                             HeroCard(movie: movie)
                                 .aspectRatio(cardAspect, contentMode: .fit)
                         }
                         .buttonStyle(.plain)
+                        .matchedTransitionSource(
+                            id: sourceID,
+                            in: transitionNamespace
+                        )
                         .containerRelativeFrame(.horizontal, alignment: .center) { width, _ in
                             width * cardWidthRatio
                         }

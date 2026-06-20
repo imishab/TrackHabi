@@ -5,6 +5,7 @@ struct CategoryMoviesView: View {
     let category: MovieCategory
 
     @State private var viewModel: CategoryMoviesViewModel
+    @Namespace private var transitionNamespace
 
     private let columns = [
         GridItem(.flexible(), spacing: 14),
@@ -37,6 +38,12 @@ struct CategoryMoviesView: View {
         .navigationTitle(category.title)
         .navigationBarTitleDisplayMode(.large)
         .toolbar(.visible, for: .navigationBar)
+        .navigationDestination(for: Movie.self) { movie in
+            MovieDetailsView(movie: movie)
+                .navigationTransition(
+                    .zoom(sourceID: movie.id, in: transitionNamespace)
+                )
+        }
         .task {
             await viewModel.loadMovies()
         }
@@ -50,6 +57,10 @@ struct CategoryMoviesView: View {
                         MovieCard(movie: movie)
                     }
                     .buttonStyle(.plain)
+                    .matchedTransitionSource(
+                        id: movie.id,
+                        in: transitionNamespace
+                    )
                     .onAppear {
                         Task { await viewModel.loadMoreIfNeeded(currentItem: movie) }
                     }
