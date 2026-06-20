@@ -81,13 +81,13 @@ struct HomeView: View {
     private var movieSections: some View {
         VStack(spacing: 30) {
             MovieSection(
-                category: .popular,
-                movies: viewModel.popularMovies
+                category: .topRated,
+                movies: viewModel.topRatedMovies
             )
 
             MovieSection(
-                category: .nowPlaying,
-                movies: viewModel.nowPlayingMovies
+                category: .popular,
+                movies: viewModel.popularMovies
             )
 
             Image("HomeBanner")
@@ -98,8 +98,8 @@ struct HomeView: View {
                 .accessibilityLabel("Featured movie banner")
 
             MovieSection(
-                category: .topRated,
-                movies: viewModel.topRatedMovies
+                category: .nowPlaying,
+                movies: viewModel.nowPlayingMovies
             )
         }
     }
@@ -212,9 +212,9 @@ private struct MovieSectionSkeleton: View {
 private extension MovieCategory {
 
     static let homeSections: [MovieCategory] = [
+        .topRated,
         .popular,
         .nowPlaying,
-        .topRated
     ]
 }
 
