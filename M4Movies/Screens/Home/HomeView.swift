@@ -51,7 +51,7 @@ struct HomeView: View {
     }
 
     private var titleHeader: some View {
-        Text("M4Movies")
+        Text("Movies")
             .font(.largeTitle.bold())
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 16)
@@ -69,6 +69,13 @@ struct HomeView: View {
                 category: .nowPlaying,
                 movies: viewModel.nowPlayingMovies
             )
+
+            Image("HomeBanner")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .padding(.horizontal, 16)
+                .accessibilityLabel("Featured movie banner")
 
             MovieSection(
                 category: .topRated,
