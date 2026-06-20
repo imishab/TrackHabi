@@ -6,30 +6,36 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVStack(spacing: 28) {
-                    titleHeader
+            ZStack(alignment: .top) {
+                ScrollView {
+                    LazyVStack(spacing: 28) {
+                        Color.clear
+                            .frame(height: 50)
 
-                    if !viewModel.featuredMovies.isEmpty {
-                        HomeHeroSlider(movies: viewModel.featuredMovies)
-                    }
-
-                    if viewModel.isLoading && !hasSectionContent {
-                        sectionSkeletons
-                    } else if let errorMessage = viewModel.errorMessage,
-                              !hasSectionContent {
-                        ErrorView(message: errorMessage) {
-                            Task { await viewModel.retry() }
+                        if !viewModel.featuredMovies.isEmpty {
+                            HomeHeroSlider(movies: viewModel.featuredMovies)
                         }
-                        .frame(minHeight: 320)
-                    } else {
-                        movieSections
+
+                        if viewModel.isLoading && !hasSectionContent {
+                            sectionSkeletons
+                        } else if let errorMessage = viewModel.errorMessage,
+                                  !hasSectionContent {
+                            ErrorView(message: errorMessage) {
+                                Task { await viewModel.retry() }
+                            }
+                            .frame(minHeight: 320)
+                        } else {
+                            movieSections
+                        }
                     }
+                    .padding(.bottom, 36)
                 }
-                .padding(.bottom, 36)
-            }
-            .refreshable {
-                await viewModel.refresh()
+                .refreshable {
+                    await viewModel.refresh()
+                }
+
+                headerBackground
+                titleHeader
             }
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: Movie.self) { movie in
@@ -53,29 +59,47 @@ struct HomeView: View {
     private var titleHeader: some View {
         HStack(spacing: 16) {
             Text("Movies")
-                .font(.largeTitle.bold())
+                .font(.system(size: 30, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
 
             Spacer()
 
             ZStack {
                 Circle()
-                    .fill(Color(.secondarySystemBackground))
+                    .fill(Color.white.opacity(0.08))
 
                 Image("UserAvatar")
                     .resizable()
                     .scaledToFit()
-                    .padding(10)
+                    .padding(4)
             }
-            .frame(width: 50, height: 50)
+            .frame(width: 44, height: 44)
             .clipShape(Circle())
             .overlay {
                 Circle()
-                    .stroke(Color.primary.opacity(0.1), lineWidth: 1)
+                    .stroke(Color.white.opacity(0.14), lineWidth: 1)
             }
             .accessibilityLabel("User profile")
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 8)
+        .padding(.horizontal, 20)
+        .padding(.top, 10)
+        .padding(.bottom, 14)
+    }
+
+    private var headerBackground: some View {
+        LinearGradient(
+            stops: [
+                .init(color: .black.opacity(0.96), location: 0),
+                .init(color: .black.opacity(0.82), location: 0.42),
+                .init(color: .black.opacity(0.42), location: 0.75),
+                .init(color: .clear, location: 1)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .frame(height: 140)
+        .allowsHitTesting(false)
+        .ignoresSafeArea(edges: .top)
     }
 
     private var movieSections: some View {
