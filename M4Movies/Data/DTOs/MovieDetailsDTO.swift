@@ -19,9 +19,11 @@ struct MovieDetailsDTO: Codable {
     let homepage: String?
     let budget: Int
     let revenue: Int
+    let videos: VideoResponseDTO?
 
     enum CodingKeys: String, CodingKey {
         case id, title, overview, tagline, runtime, genres, status, homepage, budget, revenue
+        case videos
         case originalTitle = "original_title"
         case posterPath = "poster_path"
         case backdropPath = "backdrop_path"
@@ -36,6 +38,27 @@ struct GenreDTO: Codable {
 
     let id: Int
     let name: String
+}
+
+struct VideoResponseDTO: Codable {
+
+    let results: [VideoDTO]
+}
+
+struct VideoDTO: Codable {
+
+    let id: String
+    let name: String
+    let key: String
+    let site: String
+    let type: String
+    let official: Bool
+    let publishedAt: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, key, site, type, official
+        case publishedAt = "published_at"
+    }
 }
 
 extension MovieDetailsDTO {
@@ -58,7 +81,36 @@ extension MovieDetailsDTO {
             originalLanguage: originalLanguage,
             homepage: homepage,
             budget: budget,
-            revenue: revenue
+            revenue: revenue,
+            trailer: preferredTrailer
         )
+    }
+
+    private var preferredTrailer: MovieTrailer? {
+        let supportedTrailers = videos?.results.filter {
+            $0.type.caseInsensitiveCompare("Trailer") == .orderedSame &&
+            ["youtube", "vimeo"].contains($0.site.lowercased())
+        } ?? []
+
+        let selected = supportedTrailers.sorted { lhs, rhs in
+            trailerScore(lhs) > trailerScore(rhs)
+        }.first
+
+        guard let selected else { return nil }
+
+        return MovieTrailer(
+            id: selected.id,
+            name: selected.name,
+            site: selected.site,
+            key: selected.key
+        )
+    }
+
+    private func trailerScore(_ video: VideoDTO) -> Int {
+        var score = 0
+        if video.official { score += 100 }
+        if video.site.caseInsensitiveCompare("YouTube") == .orderedSame { score += 20 }
+        if video.name.localizedCaseInsensitiveContains("official trailer") { score += 10 }
+        return score
     }
 }

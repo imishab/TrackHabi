@@ -19,12 +19,35 @@ struct MovieDetails: Identifiable, Hashable {
     let homepage: String?
     let budget: Int
     let revenue: Int
+    let trailer: MovieTrailer?
 }
 
 struct Genre: Identifiable, Hashable {
 
     let id: Int
     let name: String
+}
+
+struct MovieTrailer: Identifiable, Hashable {
+
+    let id: String
+    let name: String
+    let site: String
+    let key: String
+}
+
+extension MovieTrailer {
+
+    var watchURL: URL? {
+        switch site.lowercased() {
+        case "youtube":
+            return URL(string: "https://www.youtube.com/watch?v=\(key)")
+        case "vimeo":
+            return URL(string: "https://vimeo.com/\(key)")
+        default:
+            return nil
+        }
+    }
 }
 
 extension MovieDetails {

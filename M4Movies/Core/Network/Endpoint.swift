@@ -36,7 +36,7 @@ extension Endpoint {
 
             return URL(
                 string:
-                "\(Config.baseURL)/movie/\(id)?api_key=\(Config.apiKey)"
+                "\(Config.baseURL)/movie/\(id)?api_key=\(Config.apiKey)&append_to_response=videos"
             )
         }
     }

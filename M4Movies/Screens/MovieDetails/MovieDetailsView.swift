@@ -218,6 +218,8 @@ private struct DetailsContent: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
+            TrailerAction(trailer: details.trailer)
+
             if !details.genres.isEmpty {
                 GenreChips(genres: details.genres)
             }
@@ -232,6 +234,41 @@ private struct DetailsContent: View {
             Section(title: "Information") {
                 InfoGrid(details: details)
             }
+        }
+    }
+}
+
+private struct TrailerAction: View {
+
+    let trailer: MovieTrailer?
+
+    @Environment(\.openURL) private var openURL
+
+    var body: some View {
+        if let trailer, let watchURL = trailer.watchURL {
+            Button {
+                openURL(watchURL)
+            } label: {
+                Label("Watch Trailer", systemImage: "play.fill")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.black)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 46)
+                    .background(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint("Opens \(trailer.name) on \(trailer.site)")
+        } else {
+            Label("Trailer Not Available", systemImage: "play.slash")
+                .font(.headline)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(
+                    Color(.secondarySystemBackground),
+                    in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+                )
         }
     }
 }
