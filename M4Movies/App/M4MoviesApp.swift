@@ -1,10 +1,3 @@
-//
-//  M4MoviesApp.swift
-//  M4Movies
-//
-//  Created by Miss-Hub on 19/06/26.
-//
-
 import SwiftUI
 
 @main
