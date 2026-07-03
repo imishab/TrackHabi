@@ -14,8 +14,6 @@ Package.resolved
 # macOS
 .DS_Store
 
-# Secrets
-M4Movies/Resources/Config.swift
 *.xcconfig
 !*.example.xcconfig
 

@@ -8,7 +8,7 @@ final class PersistenceController {
 
     init(inMemory: Bool = false) {
         container = NSPersistentContainer(
-            name: "Movies",
+            name: "TrackHabi",
             managedObjectModel: Self.makeModel()
         )
 
@@ -29,8 +29,8 @@ final class PersistenceController {
     private static func makeModel() -> NSManagedObjectModel {
         let model = NSManagedObjectModel()
         model.entities = [
-            RecentSearchEntity.makeEntityDescription(),
-            FavoriteMovieEntity.makeEntityDescription()
+            HabitEntity.makeEntityDescription(),
+            HabitCompletionEntity.makeEntityDescription()
         ]
         return model
     }
