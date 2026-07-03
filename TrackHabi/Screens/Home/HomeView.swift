@@ -29,7 +29,7 @@ struct HomeView: View {
                     }
                 }
             }
-            .navigationTitle("Home")
+            .navigationTitle(greetingTitle)
             .navigationDestination(for: CategoryCard.self) { card in
                 CategoryHabitsView(card: card)
             }
@@ -43,6 +43,19 @@ struct HomeView: View {
                 viewModel.load()
             }
         }
+    }
+
+    private var greetingTitle: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        let period: String
+        switch hour {
+        case 0..<12:  period = "Good Morning"
+        case 12..<17: period = "Good Afternoon"
+        default:      period = "Good Evening"
+        }
+
+        let name = UserProfileStore.shared.name
+        return name.isEmpty ? period : "\(period), \(name)"
     }
 
     // MARK: - Top Streak

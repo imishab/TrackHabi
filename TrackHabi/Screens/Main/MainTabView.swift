@@ -4,6 +4,7 @@ struct MainTabView: View {
 
     @State private var selectedTab: AppTab = .home
     @State private var showingAddHabit = false
+    @State private var showingOnboarding = !UserProfileStore.shared.hasCompletedOnboarding
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -45,6 +46,14 @@ struct MainTabView: View {
         }
         .sheet(isPresented: $showingAddHabit) {
             AddHabitView { NotificationCenter.default.post(name: .habitDataDidChange, object: nil) }
+        }
+        .sheet(isPresented: $showingOnboarding) {
+            OnboardingView {
+                showingOnboarding = false
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.hidden)
+            .interactiveDismissDisabled(true)
         }
     }
 }
