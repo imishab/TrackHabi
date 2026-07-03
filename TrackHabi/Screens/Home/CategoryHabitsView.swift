@@ -19,12 +19,16 @@ struct CategoryHabitsView: View {
             } else {
                 List {
                     ForEach(viewModel.habits) { habit in
-                        NavigationLink(value: habit) {
-                            HabitRow(
-                                habit: habit,
-                                isCompleted: viewModel.isCompletedToday(habit),
-                                onToggle: { viewModel.toggleToday(habit) }
-                            )
+                        HabitRow(
+                            habit: habit,
+                            isCompleted: viewModel.isCompletedToday(habit),
+                            onToggle: { viewModel.toggleToday(habit) }
+                        )
+                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                            NavigationLink(value: habit) {
+                                Label("Details", systemImage: "info.circle")
+                            }
+                            .tint(.blue)
                         }
                     }
                 }

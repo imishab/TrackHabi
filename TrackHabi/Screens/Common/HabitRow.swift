@@ -26,22 +26,21 @@ struct HabitRow: View {
 
             Spacer()
 
-            Button {
-                let willBeCompleted = !isCompleted
-                onToggle()
-                if willBeCompleted {
-                    CompletionFeedback.playComplete()
-                } else {
-                    CompletionFeedback.playRemove()
-                }
-            } label: {
-                Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
-                    .font(.title2)
-                    .foregroundStyle(isCompleted ? HabitPalette.color(named: habit.colorName) : .secondary)
-            }
-            .buttonStyle(.plain)
+            Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
+                .font(.title2)
+                .foregroundStyle(isCompleted ? HabitPalette.color(named: habit.colorName) : .secondary)
         }
         .padding(.vertical, 4)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            let willBeCompleted = !isCompleted
+            onToggle()
+            if willBeCompleted {
+                CompletionFeedback.playComplete()
+            } else {
+                CompletionFeedback.playRemove()
+            }
+        }
     }
 
     private var scheduleSummary: String {

@@ -23,12 +23,16 @@ struct HabitOverviewView: View {
                         ForEach(viewModel.groupedHabits) { group in
                             Section {
                                 ForEach(group.habits) { habit in
-                                    NavigationLink(value: habit) {
-                                        HabitRow(
-                                            habit: habit,
-                                            isCompleted: viewModel.isCompleted(habit),
-                                            onToggle: { viewModel.toggle(habit) }
-                                        )
+                                    HabitRow(
+                                        habit: habit,
+                                        isCompleted: viewModel.isCompleted(habit),
+                                        onToggle: { viewModel.toggle(habit) }
+                                    )
+                                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                        NavigationLink(value: habit) {
+                                            Label("Details", systemImage: "info.circle")
+                                        }
+                                        .tint(.blue)
                                     }
                                 }
                                 .onDelete { indexSet in
