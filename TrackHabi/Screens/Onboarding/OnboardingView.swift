@@ -44,21 +44,25 @@ struct OnboardingView: View {
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
             }
 
-            Button {
-                submit()
-            } label: {
-                Text("Continue")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(!viewModel.canSubmit)
-
             Spacer(minLength: 0)
         }
         .padding()
         .padding(.top, 8)
+        .safeAreaInset(edge: .bottom) {
+            Button {
+                submit()
+            } label: {
+                Text("Continue")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+            }
+            .buttonStyle(.borderedProminent)
+            .buttonBorderShape(.capsule)
+            .disabled(!viewModel.canSubmit)
+            .padding(.horizontal)
+            .padding(.bottom, 12)
+        }
         .onAppear {
             focusedField = .name
         }
