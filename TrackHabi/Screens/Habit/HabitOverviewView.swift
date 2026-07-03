@@ -33,7 +33,9 @@ struct HabitOverviewView: View {
                                         onToggle: { viewModel.toggle(habit) }
                                     )
                                     .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                        NavigationLink(value: habit) {
+                                        Button {
+                                            path.append(habit)
+                                        } label: {
                                             Label("Details", systemImage: "info.circle")
                                         }
                                         .tint(.blue)
