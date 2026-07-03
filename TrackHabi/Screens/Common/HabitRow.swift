@@ -25,7 +25,7 @@ struct HabitRow: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 if !isEnabled {
-                    Text("Not today")
+                    Text(isFutureDate ? "Upcoming" : "Not today")
                         .font(.caption2.weight(.medium))
                         .foregroundStyle(.orange)
                 } else if isOverdue {
@@ -67,6 +67,11 @@ struct HabitRow: View {
         let days = habit.isDaily ? "Every day" : scheduleSummary
         guard let reminderTime = habit.reminderTime else { return days }
         return "\(days)  |  \(reminderTime.formatted(.dateTime.hour().minute()))"
+    }
+
+    private var isFutureDate: Bool {
+        let calendar = Calendar.current
+        return calendar.startOfDay(for: date) > calendar.startOfDay(for: Date())
     }
 
     private var isOverdue: Bool {

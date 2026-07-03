@@ -42,7 +42,8 @@ final class HabitOverviewViewModel {
     }
 
     func isEnabled(_ habit: Habit) -> Bool {
-        habit.isScheduled(on: selectedDate, calendar: calendar)
+        guard calendar.startOfDay(for: selectedDate) <= calendar.startOfDay(for: Date()) else { return false }
+        return habit.isScheduled(on: selectedDate, calendar: calendar)
     }
 
     var groupedHabits: [HabitCategoryGroup] {
