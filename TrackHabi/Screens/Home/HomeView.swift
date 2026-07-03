@@ -75,12 +75,12 @@ struct HomeView: View {
     private var greetingHeader: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(greetingPeriod)
-                .font(.subheadline)
+                .font(.caption)
                 .foregroundStyle(.secondary)
 
             if !greetingName.isEmpty {
                 Text(greetingName)
-                    .font(.title2.weight(.bold))
+                    .font(.largeTitle.weight(.bold))
                     .foregroundStyle(.primary)
             }
         }
