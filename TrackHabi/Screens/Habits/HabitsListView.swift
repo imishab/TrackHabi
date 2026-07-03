@@ -56,6 +56,9 @@ struct HabitsListView: View {
             .task {
                 viewModel.load()
             }
+            .onReceive(NotificationCenter.default.publisher(for: .habitDataDidChange)) { _ in
+                viewModel.load()
+            }
         }
     }
 }
