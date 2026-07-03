@@ -98,11 +98,16 @@ struct HabitDetailView: View {
                         .foregroundStyle(completed ? .white : .primary)
                         .onTapGesture {
                             guard scheduled else { return }
+                            let wasCompleted = completed
                             viewModel.toggle(day)
+                            if !wasCompleted, viewModel.isCompleted(on: day) {
+                                CompletionFeedback.play()
+                            }
                         }
                 }
             }
         }
+        .sensoryFeedback(.success, trigger: viewModel.stats.totalCompletions) { old, new in new > old }
     }
 
     private func last35Days() -> [Date] {

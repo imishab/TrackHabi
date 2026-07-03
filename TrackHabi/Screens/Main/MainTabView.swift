@@ -37,6 +37,7 @@ struct MainTabView: View {
                 SettingsView()
             }
         }
+        .sensoryFeedback(.selection, trigger: selectedTab)
         .onChange(of: selectedTab) { previousTab, newTab in
             guard newTab == .add else { return }
             selectedTab = previousTab

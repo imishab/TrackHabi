@@ -34,6 +34,12 @@ struct HabitRow: View {
             .buttonStyle(.plain)
         }
         .padding(.vertical, 4)
+        .sensoryFeedback(.success, trigger: isCompleted) { _, newValue in newValue }
+        .onChange(of: isCompleted) { _, newValue in
+            if newValue {
+                CompletionFeedback.play()
+            }
+        }
     }
 
     private var scheduleSummary: String {
