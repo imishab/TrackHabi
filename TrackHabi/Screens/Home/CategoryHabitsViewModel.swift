@@ -31,8 +31,15 @@ final class CategoryHabitsViewModel {
 
     var visibleDates: [Date] {
         let today = calendar.startOfDay(for: Date())
-        return (0..<14).reversed().compactMap {
-            calendar.date(byAdding: .day, value: -$0, to: today)
+        guard
+            let monthInterval = calendar.dateInterval(of: .month, for: today),
+            let daysInMonth = calendar.range(of: .day, in: .month, for: today)?.count
+        else {
+            return [today]
+        }
+        let firstOfMonth = monthInterval.start
+        return (0..<daysInMonth).compactMap {
+            calendar.date(byAdding: .day, value: $0, to: firstOfMonth)
         }
     }
 

@@ -37,6 +37,7 @@ struct CategoryHabitsView: View {
                             habit: habit,
                             isCompleted: viewModel.isCompleted(habit),
                             isEnabled: viewModel.isEnabled(habit),
+                            date: viewModel.selectedDate,
                             onToggle: { viewModel.toggle(habit) }
                         )
                         .swipeActions(edge: .leading, allowsFullSwipe: true) {

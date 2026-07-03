@@ -27,7 +27,8 @@ struct DateStrip: View {
                 .padding(.vertical, 12)
             }
             .onAppear {
-                proxy.scrollTo(dates.last, anchor: .trailing)
+                let target = dates.first { calendar.isDate($0, inSameDayAs: selectedDate) } ?? dates.last
+                proxy.scrollTo(target, anchor: .center)
             }
         }
     }

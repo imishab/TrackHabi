@@ -5,6 +5,7 @@ struct HabitRow: View {
     let habit: Habit
     let isCompleted: Bool
     var isEnabled: Bool = true
+    var date: Date = Date()
     let onToggle: () -> Void
 
     var body: some View {
@@ -27,6 +28,10 @@ struct HabitRow: View {
                     Text("Not today")
                         .font(.caption2.weight(.medium))
                         .foregroundStyle(.orange)
+                } else if isOverdue {
+                    Text("Due")
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.red)
                 }
             }
 
@@ -62,5 +67,29 @@ struct HabitRow: View {
         let days = habit.isDaily ? "Every day" : scheduleSummary
         guard let reminderTime = habit.reminderTime else { return days }
         return "\(days)  |  \(reminderTime.formatted(.dateTime.hour().minute()))"
+    }
+
+    private var isOverdue: Bool {
+        guard isEnabled, !isCompleted, let reminderTime = habit.reminderTime else { return false }
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let day = calendar.startOfDay(for: date)
+
+        if day < today {
+            return true
+        }
+
+        guard day == today else { return false }
+
+        let reminderComponents = calendar.dateComponents([.hour, .minute], from: reminderTime)
+        guard let reminderToday = calendar.date(
+            bySettingHour: reminderComponents.hour ?? 0,
+            minute: reminderComponents.minute ?? 0,
+            second: 0,
+            of: today
+        ) else {
+            return false
+        }
+        return Date() > reminderToday
     }
 }
