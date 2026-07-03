@@ -3,6 +3,7 @@ import SwiftUI
 struct AddHabitView: View {
 
     @State private var viewModel = AddHabitViewModel()
+    @State private var showingAddCategory = false
     @Environment(\.dismiss) private var dismiss
     let onSave: () -> Void
 
@@ -51,6 +52,44 @@ struct AddHabitView: View {
                     .padding(.vertical, 4)
                 }
 
+                Section("Category") {
+                    Menu {
+                        ForEach(viewModel.categories) { category in
+                            Button {
+                                viewModel.selectedCategoryID = category.id
+                            } label: {
+                                Label(category.name, systemImage: category.icon)
+                            }
+                        }
+
+                        if !viewModel.categories.isEmpty {
+                            Divider()
+                        }
+
+                        Button {
+                            showingAddCategory = true
+                        } label: {
+                            Label("New Category", systemImage: "plus")
+                        }
+                    } label: {
+                        HStack {
+                            if let category = viewModel.selectedCategory {
+                                Image(systemName: category.icon)
+                                    .foregroundStyle(HabitPalette.color(named: category.colorName))
+                                Text(category.name)
+                                    .foregroundStyle(.primary)
+                            } else {
+                                Text("Select Category")
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.up.chevron.down")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+
                 Section("Repeat") {
                     HStack {
                         ForEach(Weekday.allCases) { day in
@@ -79,6 +118,14 @@ struct AddHabitView: View {
                     }
                     .disabled(!viewModel.canSave)
                 }
+            }
+            .sheet(isPresented: $showingAddCategory) {
+                AddCategoryView { category in
+                    viewModel.categoryCreated(category)
+                }
+            }
+            .task {
+                viewModel.loadCategories()
             }
         }
     }

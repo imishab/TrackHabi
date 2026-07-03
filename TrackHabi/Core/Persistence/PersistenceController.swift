@@ -30,7 +30,8 @@ final class PersistenceController {
         let model = NSManagedObjectModel()
         model.entities = [
             HabitEntity.makeEntityDescription(),
-            HabitCompletionEntity.makeEntityDescription()
+            HabitCompletionEntity.makeEntityDescription(),
+            HabitCategoryEntity.makeEntityDescription()
         ]
         return model
     }

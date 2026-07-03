@@ -10,6 +10,7 @@ final class HabitEntity: NSManagedObject {
     @NSManaged var scheduledDaysMask: Int16
     @NSManaged var createdAt: Date
     @NSManaged var isArchived: Bool
+    @NSManaged var categoryID: String?
 
     static func fetchRequest() -> NSFetchRequest<HabitEntity> {
         NSFetchRequest<HabitEntity>(entityName: "HabitEntity")
@@ -55,7 +56,12 @@ final class HabitEntity: NSManagedObject {
         isArchived.attributeType = .booleanAttributeType
         isArchived.isOptional = false
 
-        entity.properties = [id, title, icon, colorName, scheduledDaysMask, createdAt, isArchived]
+        let categoryID = NSAttributeDescription()
+        categoryID.name = "categoryID"
+        categoryID.attributeType = .stringAttributeType
+        categoryID.isOptional = true
+
+        entity.properties = [id, title, icon, colorName, scheduledDaysMask, createdAt, isArchived, categoryID]
         entity.uniquenessConstraints = [["id"]]
         return entity
     }
@@ -71,7 +77,8 @@ extension HabitEntity {
             colorName: colorName,
             scheduledDays: Weekday.set(fromMask: scheduledDaysMask),
             createdAt: createdAt,
-            isArchived: isArchived
+            isArchived: isArchived,
+            categoryID: categoryID.flatMap { UUID(uuidString: $0) }
         )
     }
 
@@ -83,5 +90,6 @@ extension HabitEntity {
         scheduledDaysMask = Weekday.mask(from: habit.scheduledDays)
         createdAt = habit.createdAt
         isArchived = habit.isArchived
+        categoryID = habit.categoryID?.uuidString
     }
 }
