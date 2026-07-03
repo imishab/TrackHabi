@@ -196,20 +196,15 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 12) {
                 ForEach(viewModel.recentHabits) { habit in
                     let completed = viewModel.isCompletedToday(habit)
-                    Button {
-                        viewModel.toggleToday(habit)
-                    } label: {
-                        HStack(spacing: 8) {
-                            Image(systemName: completed ? "checkmark.square.fill" : "square")
-                                .foregroundStyle(completed ? HabitPalette.color(named: habit.colorName) : .secondary)
-                            Text(habit.title)
-                                .font(.footnote)
-                                .strikethrough(completed)
-                                .foregroundStyle(completed ? .secondary : .primary)
-                                .lineLimit(1)
-                        }
+                    HStack(spacing: 8) {
+                        Image(systemName: completed ? "checkmark.square.fill" : "square")
+                            .foregroundStyle(completed ? HabitPalette.color(named: habit.colorName) : .secondary)
+                        Text(habit.title)
+                            .font(.footnote)
+                            .strikethrough(completed)
+                            .foregroundStyle(completed ? .secondary : .primary)
+                            .lineLimit(1)
                     }
-                    .buttonStyle(.plain)
                 }
             }
         }
