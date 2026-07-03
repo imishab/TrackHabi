@@ -2,11 +2,16 @@ import SwiftUI
 
 struct AddCategoryView: View {
 
-    @State private var viewModel = AddCategoryViewModel()
+    @State private var viewModel: AddCategoryViewModel
     @Environment(\.dismiss) private var dismiss
     let onSave: (HabitCategory) -> Void
 
     private let columns = Array(repeating: GridItem(.flexible()), count: 6)
+
+    init(category: HabitCategory? = nil, onSave: @escaping (HabitCategory) -> Void) {
+        _viewModel = State(initialValue: AddCategoryViewModel(category: category))
+        self.onSave = onSave
+    }
 
     var body: some View {
         NavigationStack {
@@ -51,7 +56,7 @@ struct AddCategoryView: View {
                     .padding(.vertical, 4)
                 }
             }
-            .navigationTitle("New Category")
+            .navigationTitle(viewModel.isEditing ? "Edit Category" : "New Category")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

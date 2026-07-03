@@ -22,6 +22,15 @@ final class HabitCategoryRepositoryImpl: HabitCategoryRepository {
         try saveIfNeeded()
     }
 
+    func update(_ category: HabitCategory) throws {
+        let request = HabitCategoryEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", category.id.uuidString)
+        request.fetchLimit = 1
+        guard let entity = try context.fetch(request).first else { return }
+        entity.apply(category)
+        try saveIfNeeded()
+    }
+
     func delete(id: UUID) throws {
         let request = HabitCategoryEntity.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id.uuidString)
