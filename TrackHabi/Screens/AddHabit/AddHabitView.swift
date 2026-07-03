@@ -16,6 +16,11 @@ struct AddHabitView: View {
                     TextField("e.g. Drink Water", text: $viewModel.title)
                 }
 
+                Section("Description") {
+                    TextField("Add a short note (optional)", text: $viewModel.notes, axis: .vertical)
+                        .lineLimit(2...4)
+                }
+
                 Section("Icon") {
                     LazyVGrid(columns: columns, spacing: 12) {
                         ForEach(HabitPalette.icons, id: \.self) { icon in
@@ -101,6 +106,27 @@ struct AddHabitView: View {
                                 .foregroundStyle(isOn ? .white : .primary)
                                 .onTapGesture { viewModel.toggleDay(day) }
                         }
+                    }
+                }
+
+                Section("Reminder") {
+                    Toggle("Remind Me", isOn: $viewModel.isReminderEnabled.animation())
+                    if viewModel.isReminderEnabled {
+                        DatePicker("Time", selection: $viewModel.reminderTime, displayedComponents: .hourAndMinute)
+                    }
+                }
+
+                Section("Start Date") {
+                    Toggle("Set Start Date", isOn: $viewModel.isStartDateEnabled.animation())
+                    if viewModel.isStartDateEnabled {
+                        DatePicker("Start Date", selection: $viewModel.startDate, displayedComponents: .date)
+                    }
+                }
+
+                Section("End Date") {
+                    Toggle("Set End Date", isOn: $viewModel.isEndDateEnabled.animation())
+                    if viewModel.isEndDateEnabled {
+                        DatePicker("End Date", selection: $viewModel.endDate, displayedComponents: .date)
                     }
                 }
             }
