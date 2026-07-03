@@ -30,8 +30,12 @@ final class HabitOverviewViewModel {
 
     var habitsForSelectedDate: [Habit] {
         habits
-            .filter { !$0.isArchived && $0.isScheduled(on: selectedDate, calendar: calendar) }
+            .filter { !$0.isArchived && $0.isWithinActiveRange(on: selectedDate, calendar: calendar) }
             .sorted { $0.createdAt < $1.createdAt }
+    }
+
+    func isEnabled(_ habit: Habit) -> Bool {
+        habit.isScheduled(on: selectedDate, calendar: calendar)
     }
 
     var groupedHabits: [HabitCategoryGroup] {
@@ -74,6 +78,7 @@ final class HabitOverviewViewModel {
     }
 
     func toggle(_ habit: Habit) {
+        guard isEnabled(habit) else { return }
         do {
             let isNowCompleted = try repository.toggleCompletion(habitID: habit.id, on: selectedDate)
             if isNowCompleted {

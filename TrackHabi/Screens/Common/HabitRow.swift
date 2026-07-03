@@ -4,6 +4,7 @@ struct HabitRow: View {
 
     let habit: Habit
     let isCompleted: Bool
+    var isEnabled: Bool = true
     let onToggle: () -> Void
 
     var body: some View {
@@ -19,20 +20,29 @@ struct HabitRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(habit.title)
                     .font(.body.weight(.medium))
-                Text(scheduleLine)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                HStack(spacing: 6) {
+                    Text(scheduleLine)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    if !isEnabled {
+                        Text("· Not today")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.orange)
+                    }
+                }
             }
 
             Spacer()
 
             Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
                 .font(.title2)
-                .foregroundStyle(isCompleted ? HabitPalette.color(named: habit.colorName) : .secondary)
+                .foregroundStyle(isEnabled ? (isCompleted ? HabitPalette.color(named: habit.colorName) : .secondary) : Color.secondary.opacity(0.3))
         }
         .padding(.vertical, 4)
+        .opacity(isEnabled ? 1 : 0.5)
         .contentShape(Rectangle())
         .onTapGesture {
+            guard isEnabled else { return }
             let willBeCompleted = !isCompleted
             onToggle()
             if willBeCompleted {

@@ -37,7 +37,11 @@ final class CategoryHabitsViewModel {
     }
 
     var habitsForSelectedDate: [Habit] {
-        habits.filter { $0.isScheduled(on: selectedDate, calendar: calendar) }
+        habits.filter { $0.isWithinActiveRange(on: selectedDate, calendar: calendar) }
+    }
+
+    func isEnabled(_ habit: Habit) -> Bool {
+        habit.isScheduled(on: selectedDate, calendar: calendar)
     }
 
     func load() {
@@ -57,6 +61,7 @@ final class CategoryHabitsViewModel {
     }
 
     func toggle(_ habit: Habit) {
+        guard isEnabled(habit) else { return }
         do {
             let isNowCompleted = try repository.toggleCompletion(habitID: habit.id, on: selectedDate)
             if isNowCompleted {

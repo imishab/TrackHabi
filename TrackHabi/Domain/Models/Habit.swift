@@ -44,11 +44,17 @@ struct Habit: Identifiable, Hashable {
 
     var isDaily: Bool { scheduledDays.count == Weekday.allCases.count }
 
-    func isScheduled(on date: Date, calendar: Calendar = .current) -> Bool {
-        guard scheduledDays.contains(Weekday.from(date: date, calendar: calendar)) else { return false }
+    /// Whether `date` falls within the habit's active start/end date bounds, ignoring the weekly schedule.
+    func isWithinActiveRange(on date: Date, calendar: Calendar = .current) -> Bool {
         let day = calendar.startOfDay(for: date)
         if let startDate, day < calendar.startOfDay(for: startDate) { return false }
         if let endDate, day > calendar.startOfDay(for: endDate) { return false }
         return true
+    }
+
+    /// Whether `date` is an actual scheduled (completable) day: matches the weekly schedule and is within range.
+    func isScheduled(on date: Date, calendar: Calendar = .current) -> Bool {
+        guard scheduledDays.contains(Weekday.from(date: date, calendar: calendar)) else { return false }
+        return isWithinActiveRange(on: date, calendar: calendar)
     }
 }
