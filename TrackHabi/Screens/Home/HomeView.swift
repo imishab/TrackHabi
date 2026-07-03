@@ -3,7 +3,6 @@ import SwiftUI
 struct HomeView: View {
 
     @State private var viewModel = HomeViewModel()
-    @State private var showingAddHabit = false
 
     var body: some View {
         NavigationStack {
@@ -32,18 +31,6 @@ struct HomeView: View {
             .navigationTitle("Home")
             .navigationDestination(for: CategoryCard.self) { card in
                 CategoryHabitsView(card: card)
-            }
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        showingAddHabit = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                }
-            }
-            .sheet(isPresented: $showingAddHabit) {
-                AddHabitView { NotificationCenter.default.post(name: .habitDataDidChange, object: nil) }
             }
             .task {
                 viewModel.load()
@@ -158,29 +145,22 @@ struct HomeView: View {
     // MARK: - Category Slider
 
     private var categorySlider: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                ForEach(viewModel.cards) { card in
-                    NavigationLink(value: card) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(card.name)
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.primary)
-                                .lineLimit(1)
-                            Text("\(card.habitCount) habit\(card.habitCount == 1 ? "" : "s")")
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                            Spacer(minLength: 0)
-                            Image(systemName: card.icon)
-                                .font(.title3)
-                                .foregroundStyle(HabitPalette.color(named: card.colorName))
+        VStack(alignment: .leading, spacing: 10) {
+            Text("CATEGORIES")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 2)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(viewModel.cards) { card in
+                        NavigationLink(value: card) {
+                            CategorySliderCard(card: card)
                         }
-                        .padding(12)
-                        .frame(width: 110, height: 100, alignment: .leading)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
+                .padding(.vertical, 2)
             }
         }
     }
@@ -257,6 +237,39 @@ struct HomeView: View {
         case .inactive:   Color.secondary.opacity(0.18)
         case nil:         .clear
         }
+    }
+}
+
+private struct CategorySliderCard: View {
+    let card: CategoryCard
+
+    var body: some View {
+        HStack(spacing: 10) {
+            ZStack {
+                Circle()
+                    .fill(HabitPalette.color(named: card.colorName).opacity(0.15))
+                    .frame(width: 40, height: 40)
+                Image(systemName: card.icon)
+                    .font(.system(size: 16))
+                    .foregroundStyle(HabitPalette.color(named: card.colorName))
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(card.name)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+
+                Text("\(card.habitCount)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 14)
+        .frame(width: 150, alignment: .leading)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18))
+        .shadow(color: .black.opacity(0.05), radius: 6, y: 3)
     }
 }
 
