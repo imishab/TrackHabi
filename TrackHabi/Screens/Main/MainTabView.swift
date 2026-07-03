@@ -8,13 +8,13 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             Tab(AppTab.home.title,
-                systemImage: AppTab.home.systemImage,
+                image: AppTab.home.customImageName ?? AppTab.home.systemImage,
                 value: .home) {
                 HomeView()
             }
 
             Tab(AppTab.habit.title,
-                systemImage: AppTab.habit.systemImage,
+                image: AppTab.habit.customImageName ?? AppTab.habit.systemImage,
                 value: .habit) {
                 HabitOverviewView()
             }
@@ -26,7 +26,7 @@ struct MainTabView: View {
             }
 
             Tab(AppTab.analytics.title,
-                systemImage: AppTab.analytics.systemImage,
+                image: AppTab.analytics.customImageName ?? AppTab.analytics.systemImage,
                 value: .analytics) {
                 AnalyticsView()
             }

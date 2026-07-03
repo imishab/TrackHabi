@@ -29,4 +29,14 @@ enum AppTab: Int, Hashable, Identifiable, CaseIterable {
         case .settings:  "gearshape"
         }
     }
+
+    /// Name of a custom vector asset in Assets.xcassets to use instead of `systemImage`, if any.
+    var customImageName: String? {
+        switch self {
+        case .home:      "tab-home"
+        case .habit:     "tab-habit"
+        case .analytics: "tab-analytics"
+        default:         nil
+        }
+    }
 }
