@@ -2,13 +2,13 @@ import Foundation
 
 struct TrackingDay: Identifiable {
     enum Status {
-        case completed, missed, empty
+        case completed, missed, inactive
     }
 
-    let date: Date
-    let status: Status
-
-    var id: Date { date }
+    let id = UUID()
+    /// `nil` for leading placeholder cells used to align day 1 under its weekday column.
+    let date: Date?
+    let status: Status?
 }
 
 @Observable
@@ -79,21 +79,46 @@ final class HomeViewModel {
         Array(activeHabits.sorted { $0.createdAt > $1.createdAt }.prefix(5))
     }
 
+    var monthTitle: String {
+        Date().formatted(.dateTime.month(.wide).year())
+    }
+
     var trackingDays: [TrackingDay] {
         let today = calendar.startOfDay(for: Date())
-        let days = (0..<42).reversed().compactMap {
-            calendar.date(byAdding: .day, value: -$0, to: today)
+        guard
+            let monthInterval = calendar.dateInterval(of: .month, for: today),
+            let daysInMonth = calendar.range(of: .day, in: .month, for: today)?.count
+        else {
+            return []
         }
-        return days.map { day in
+
+        let firstOfMonth = monthInterval.start
+        let leadingBlanks = calendar.component(.weekday, from: firstOfMonth) - 1
+
+        var days: [TrackingDay] = Array(repeating: TrackingDay(date: nil, status: nil), count: leadingBlanks)
+
+        for offset in 0..<daysInMonth {
+            guard let date = calendar.date(byAdding: .day, value: offset, to: firstOfMonth) else { continue }
+            let day = calendar.startOfDay(for: date)
+
+            guard day <= today else {
+                days.append(TrackingDay(date: day, status: .inactive))
+                continue
+            }
+
             let scheduled = activeHabits.filter { $0.isScheduled(on: day, calendar: calendar) }
             guard !scheduled.isEmpty else {
-                return TrackingDay(date: day, status: .empty)
+                days.append(TrackingDay(date: day, status: .inactive))
+                continue
             }
+
             let allCompleted = scheduled.allSatisfy { habit in
                 (completionDatesByHabit[habit.id] ?? []).contains(day)
             }
-            return TrackingDay(date: day, status: allCompleted ? .completed : .missed)
+            days.append(TrackingDay(date: day, status: allCompleted ? .completed : .missed))
         }
+
+        return days
     }
 
     func load() {

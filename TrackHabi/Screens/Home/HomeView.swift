@@ -221,18 +221,32 @@ struct HomeView: View {
     // MARK: - Habit Tracking Grid
 
     private var habitTrackingCard: some View {
-        let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
+        let columns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 7)
+        let weekdaySymbols = ["S", "M", "T", "W", "T", "F", "S"]
 
         return VStack(alignment: .leading, spacing: 10) {
-            Text("HABIT TRACKING")
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("HABIT TRACKING")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Text(viewModel.monthTitle)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
 
-            LazyVGrid(columns: columns, spacing: 4) {
+            LazyVGrid(columns: columns, spacing: 6) {
+                ForEach(Array(weekdaySymbols.enumerated()), id: \.offset) { _, symbol in
+                    Text(symbol)
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity)
+                }
+
                 ForEach(viewModel.trackingDays) { day in
                     Circle()
                         .fill(color(for: day.status))
                         .frame(width: 10, height: 10)
+                        .frame(maxWidth: .infinity)
                 }
             }
         }
@@ -241,11 +255,12 @@ struct HomeView: View {
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18))
     }
 
-    private func color(for status: TrackingDay.Status) -> Color {
+    private func color(for status: TrackingDay.Status?) -> Color {
         switch status {
         case .completed: .green
         case .missed:     .red
-        case .empty:      Color.secondary.opacity(0.15)
+        case .inactive:   Color.secondary.opacity(0.18)
+        case nil:         .clear
         }
     }
 }
