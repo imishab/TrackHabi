@@ -101,13 +101,15 @@ struct HabitDetailView: View {
                             let wasCompleted = completed
                             viewModel.toggle(day)
                             if !wasCompleted, viewModel.isCompleted(on: day) {
-                                CompletionFeedback.play()
+                                CompletionFeedback.playComplete()
+                            } else if wasCompleted, !viewModel.isCompleted(on: day) {
+                                CompletionFeedback.playRemove()
                             }
                         }
                 }
             }
         }
-        .sensoryFeedback(.impact(weight: .medium), trigger: viewModel.stats.totalCompletions) { old, new in new > old }
+        .sensoryFeedback(.impact(weight: .medium), trigger: viewModel.stats.totalCompletions)
     }
 
     private func last35Days() -> [Date] {

@@ -34,10 +34,12 @@ struct HabitRow: View {
             .buttonStyle(.plain)
         }
         .padding(.vertical, 4)
-        .sensoryFeedback(.impact(weight: .medium), trigger: isCompleted) { _, newValue in newValue }
+        .sensoryFeedback(.impact(weight: .medium), trigger: isCompleted)
         .onChange(of: isCompleted) { _, newValue in
             if newValue {
-                CompletionFeedback.play()
+                CompletionFeedback.playComplete()
+            } else {
+                CompletionFeedback.playRemove()
             }
         }
     }
