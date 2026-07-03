@@ -5,6 +5,7 @@ struct HabitDetailView: View {
     @State private var viewModel: HabitDetailViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var showingDeleteConfirmation = false
+    @State private var showingEditHabit = false
     let onChange: () -> Void
 
     init(habit: Habit, onChange: @escaping () -> Void) {
@@ -24,11 +25,24 @@ struct HabitDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showingEditHabit = true
+                } label: {
+                    Image(systemName: "pencil")
+                }
+            }
+            ToolbarItem(placement: .primaryAction) {
                 Button(role: .destructive) {
                     showingDeleteConfirmation = true
                 } label: {
                     Image(systemName: "trash")
                 }
+            }
+        }
+        .sheet(isPresented: $showingEditHabit) {
+            AddHabitView(habit: viewModel.habit) { updated in
+                viewModel.habitUpdated(updated)
+                onChange()
             }
         }
         .confirmationDialog(

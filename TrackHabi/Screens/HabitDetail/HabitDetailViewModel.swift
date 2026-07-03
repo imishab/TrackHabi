@@ -4,7 +4,7 @@ import Foundation
 @MainActor
 final class HabitDetailViewModel {
 
-    let habit: Habit
+    private(set) var habit: Habit
     private(set) var completedDates: Set<Date> = []
     private(set) var stats = HabitStats(currentStreak: 0, bestStreak: 0, totalCompletions: 0)
     var error: Error?
@@ -49,5 +49,10 @@ final class HabitDetailViewModel {
 
     func delete() throws {
         try repository.delete(id: habit.id)
+    }
+
+    func habitUpdated(_ habit: Habit) {
+        self.habit = habit
+        stats = HabitStats.calculate(habit: habit, completionDates: Array(completedDates), calendar: calendar)
     }
 }

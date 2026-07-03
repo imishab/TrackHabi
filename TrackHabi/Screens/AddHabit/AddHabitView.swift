@@ -2,12 +2,17 @@ import SwiftUI
 
 struct AddHabitView: View {
 
-    @State private var viewModel = AddHabitViewModel()
+    @State private var viewModel: AddHabitViewModel
     @State private var showingAddCategory = false
     @Environment(\.dismiss) private var dismiss
-    let onSave: () -> Void
+    let onSave: (Habit) -> Void
 
     private let columns = Array(repeating: GridItem(.flexible()), count: 6)
+
+    init(habit: Habit? = nil, onSave: @escaping (Habit) -> Void) {
+        _viewModel = State(initialValue: AddHabitViewModel(habit: habit))
+        self.onSave = onSave
+    }
 
     var body: some View {
         NavigationStack {
@@ -130,15 +135,15 @@ struct AddHabitView: View {
                     }
                 }
             }
-            .navigationTitle("New Habit")
+            .navigationTitle(viewModel.isEditing ? "Edit Habit" : "New Habit")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        if viewModel.save() {
-                            onSave()
+                        if let habit = viewModel.save() {
+                            onSave(habit)
                             dismiss()
                         }
                     }
@@ -158,5 +163,5 @@ struct AddHabitView: View {
 }
 
 #Preview {
-    AddHabitView(onSave: {})
+    AddHabitView(onSave: { _ in })
 }

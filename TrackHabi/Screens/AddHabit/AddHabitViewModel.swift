@@ -4,32 +4,52 @@ import Foundation
 @MainActor
 final class AddHabitViewModel {
 
-    var title: String = ""
-    var notes: String = ""
-    var icon: String = HabitPalette.icons[0]
-    var colorName: String = HabitPalette.colorNames[0]
-    var scheduledDays: Set<Weekday> = Set(Weekday.allCases)
+    var title: String
+    var notes: String
+    var icon: String
+    var colorName: String
+    var scheduledDays: Set<Weekday>
     var categories: [HabitCategory] = []
     var selectedCategoryID: UUID?
 
-    var isReminderEnabled: Bool = false
-    var reminderTime: Date = AddHabitViewModel.defaultReminderTime
+    var isReminderEnabled: Bool
+    var reminderTime: Date
 
-    var isStartDateEnabled: Bool = false
-    var startDate: Date = Date()
+    var isStartDateEnabled: Bool
+    var startDate: Date
 
-    var isEndDateEnabled: Bool = false
-    var endDate: Date = Date()
+    var isEndDateEnabled: Bool
+    var endDate: Date
 
     var error: Error?
 
     private let repository: HabitRepository
     private let categoryRepository: HabitCategoryRepository
+    private let editingHabit: Habit?
 
-    init(repository: HabitRepository? = nil, categoryRepository: HabitCategoryRepository? = nil) {
+    init(habit: Habit? = nil, repository: HabitRepository? = nil, categoryRepository: HabitCategoryRepository? = nil) {
         self.repository = repository ?? HabitRepositoryImpl()
         self.categoryRepository = categoryRepository ?? HabitCategoryRepositoryImpl()
+        self.editingHabit = habit
+
+        self.title = habit?.title ?? ""
+        self.notes = habit?.notes ?? ""
+        self.icon = habit?.icon ?? HabitPalette.icons[0]
+        self.colorName = habit?.colorName ?? HabitPalette.colorNames[0]
+        self.scheduledDays = habit?.scheduledDays ?? Set(Weekday.allCases)
+        self.selectedCategoryID = habit?.categoryID
+
+        self.isReminderEnabled = habit?.reminderTime != nil
+        self.reminderTime = habit?.reminderTime ?? AddHabitViewModel.defaultReminderTime
+
+        self.isStartDateEnabled = habit?.startDate != nil
+        self.startDate = habit?.startDate ?? Date()
+
+        self.isEndDateEnabled = habit?.endDate != nil
+        self.endDate = habit?.endDate ?? Date()
     }
+
+    var isEditing: Bool { editingHabit != nil }
 
     static var defaultReminderTime: Date {
         Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: Date()) ?? Date()
@@ -64,9 +84,10 @@ final class AddHabitViewModel {
         }
     }
 
-    func save() -> Bool {
-        guard canSave else { return false }
+    func save() -> Habit? {
+        guard canSave else { return nil }
         let habit = Habit(
+            id: editingHabit?.id ?? UUID(),
             title: title.trimmingCharacters(in: .whitespacesAndNewlines),
             notes: notes.trimmingCharacters(in: .whitespacesAndNewlines),
             icon: icon,
@@ -75,14 +96,20 @@ final class AddHabitViewModel {
             reminderTime: isReminderEnabled ? reminderTime : nil,
             startDate: isStartDateEnabled ? startDate : nil,
             endDate: isEndDateEnabled ? endDate : nil,
+            createdAt: editingHabit?.createdAt ?? Date(),
+            isArchived: editingHabit?.isArchived ?? false,
             categoryID: selectedCategoryID
         )
         do {
-            try repository.add(habit)
-            return true
+            if isEditing {
+                try repository.update(habit)
+            } else {
+                try repository.add(habit)
+            }
+            return habit
         } catch {
             self.error = error
-            return false
+            return nil
         }
     }
 }

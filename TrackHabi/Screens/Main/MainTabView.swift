@@ -45,7 +45,7 @@ struct MainTabView: View {
             showingAddHabit = true
         }
         .sheet(isPresented: $showingAddHabit) {
-            AddHabitView { NotificationCenter.default.post(name: .habitDataDidChange, object: nil) }
+            AddHabitView { _ in NotificationCenter.default.post(name: .habitDataDidChange, object: nil) }
         }
         .sheet(isPresented: $showingOnboarding) {
             OnboardingView {
