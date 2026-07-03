@@ -109,7 +109,6 @@ struct HabitDetailView: View {
                 }
             }
         }
-        .sensoryFeedback(.impact(weight: .medium), trigger: viewModel.stats.totalCompletions)
     }
 
     private func last35Days() -> [Date] {

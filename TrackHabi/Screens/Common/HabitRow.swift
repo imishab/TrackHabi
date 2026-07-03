@@ -26,7 +26,15 @@ struct HabitRow: View {
 
             Spacer()
 
-            Button(action: onToggle) {
+            Button {
+                let willBeCompleted = !isCompleted
+                onToggle()
+                if willBeCompleted {
+                    CompletionFeedback.playComplete()
+                } else {
+                    CompletionFeedback.playRemove()
+                }
+            } label: {
                 Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
                     .foregroundStyle(isCompleted ? HabitPalette.color(named: habit.colorName) : .secondary)
@@ -34,14 +42,6 @@ struct HabitRow: View {
             .buttonStyle(.plain)
         }
         .padding(.vertical, 4)
-        .sensoryFeedback(.impact(weight: .medium), trigger: isCompleted)
-        .onChange(of: isCompleted) { _, newValue in
-            if newValue {
-                CompletionFeedback.playComplete()
-            } else {
-                CompletionFeedback.playRemove()
-            }
-        }
     }
 
     private var scheduleSummary: String {

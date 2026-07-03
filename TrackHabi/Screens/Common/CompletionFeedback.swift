@@ -1,14 +1,18 @@
 import AVFoundation
+import UIKit
 
 enum CompletionFeedback {
 
     private static var player: AVAudioPlayer?
+    private static let generator = UIImpactFeedbackGenerator(style: .medium)
 
     static func playComplete() {
+        generator.impactOccurred()
         play(named: "complete")
     }
 
     static func playRemove() {
+        generator.impactOccurred()
         play(named: "remove")
     }
 
