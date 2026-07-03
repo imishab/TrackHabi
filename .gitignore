@@ -1,3 +1,22 @@
 # Xcode
 DerivedData/
 build/
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# macOS
+.DS_Store
+
+*.xcconfig
+!*.example.xcconfig
+
+# Editor
+*.swp
+*~
