@@ -4,6 +4,7 @@ import SwiftUI
 struct TrackHabiApp: App {
 
     @State private var showSplash = true
+    @State private var settings = AppSettingsStore.shared
 
     var body: some Scene {
         WindowGroup {
@@ -16,7 +17,7 @@ struct TrackHabiApp: App {
                         .zIndex(1)
                 }
             }
-            .preferredColorScheme(.dark)
+            .preferredColorScheme(settings.isDarkMode ? .dark : .light)
             .task {
                 try? await Task.sleep(for: .seconds(1.8))
                 withAnimation(.easeOut(duration: 0.5)) {
