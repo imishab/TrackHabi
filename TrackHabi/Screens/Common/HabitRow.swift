@@ -20,15 +20,13 @@ struct HabitRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(habit.title)
                     .font(.body.weight(.medium))
-                HStack(spacing: 6) {
-                    Text(scheduleLine)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    if !isEnabled {
-                        Text("· Not today")
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(.orange)
-                    }
+                Text(scheduleLine)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                if !isEnabled {
+                    Text("Not today")
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.orange)
                 }
             }
 
