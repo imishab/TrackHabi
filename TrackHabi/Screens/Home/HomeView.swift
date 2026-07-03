@@ -3,6 +3,7 @@ import SwiftUI
 struct HomeView: View {
 
     @State private var viewModel = HomeViewModel()
+    @State private var showingAddCategory = false
 
     var body: some View {
         NavigationStack {
@@ -31,6 +32,9 @@ struct HomeView: View {
             .navigationTitle("Home")
             .navigationDestination(for: CategoryCard.self) { card in
                 CategoryHabitsView(card: card)
+            }
+            .sheet(isPresented: $showingAddCategory) {
+                AddCategoryView { _ in viewModel.load() }
             }
             .task {
                 viewModel.load()
@@ -151,16 +155,39 @@ struct HomeView: View {
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 2)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(viewModel.cards) { card in
-                        NavigationLink(value: card) {
-                            CategorySliderCard(card: card)
+            if viewModel.cards.isEmpty {
+                Button {
+                    showingAddCategory = true
+                } label: {
+                    Label("Add Category", systemImage: "plus")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                }
+                .buttonStyle(.plain)
+                .background(
+                    RoundedRectangle(cornerRadius: 18)
+                        .strokeBorder(Color.secondary.opacity(0.35), style: StrokeStyle(lineWidth: 1.5, dash: [6, 5]))
+                )
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(viewModel.cards) { card in
+                            NavigationLink(value: card) {
+                                CategorySliderCard(card: card)
+                            }
+                            .buttonStyle(.plain)
+                        }
+
+                        Button {
+                            showingAddCategory = true
+                        } label: {
+                            AddCategorySliderCard()
                         }
                         .buttonStyle(.plain)
                     }
+                    .padding(.vertical, 2)
                 }
-                .padding(.vertical, 2)
             }
         }
     }
@@ -260,7 +287,7 @@ private struct CategorySliderCard: View {
                     .foregroundStyle(.primary)
                     .lineLimit(1)
 
-                Text("\(card.habitCount)")
+                Text("\(card.habitCount) habit\(card.habitCount == 1 ? "" : "s")")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -270,6 +297,33 @@ private struct CategorySliderCard: View {
         .frame(width: 150, alignment: .leading)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18))
         .shadow(color: .black.opacity(0.05), radius: 6, y: 3)
+    }
+}
+
+private struct AddCategorySliderCard: View {
+    var body: some View {
+        HStack(spacing: 10) {
+            ZStack {
+                Circle()
+                    .fill(Color.secondary.opacity(0.12))
+                    .frame(width: 40, height: 40)
+                Image(systemName: "plus")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.secondary)
+            }
+
+            Text("Add Category")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 14)
+        .frame(width: 150, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 18)
+                .strokeBorder(Color.secondary.opacity(0.35), style: StrokeStyle(lineWidth: 1.5, dash: [6, 5]))
+        )
     }
 }
 
