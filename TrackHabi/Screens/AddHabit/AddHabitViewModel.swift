@@ -106,6 +106,16 @@ final class AddHabitViewModel {
             } else {
                 try repository.add(habit)
             }
+            if habit.reminderTime != nil {
+                Task {
+                    let granted = await NotificationScheduler.shared.requestAuthorizationIfNeeded()
+                    guard granted else { return }
+                    AppSettingsStore.shared.notificationsEnabled = true
+                    NotificationScheduler.shared.schedule(for: habit, username: UserProfileStore.shared.name)
+                }
+            } else {
+                NotificationScheduler.shared.cancel(for: habit.id)
+            }
             return habit
         } catch {
             self.error = error

@@ -66,12 +66,17 @@ struct SettingsView: View {
             .navigationTitle("Settings")
         }
         .onChange(of: settings.notificationsEnabled) { _, isEnabled in
-            guard isEnabled else { return }
-            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-                if !granted {
-                    Task { @MainActor in
-                        settings.notificationsEnabled = false
-                    }
+            guard isEnabled else {
+                NotificationScheduler.shared.cancelAll()
+                return
+            }
+            Task {
+                let granted = await NotificationScheduler.shared.requestAuthorizationIfNeeded()
+                if granted {
+                    let habits = (try? repository.fetchAll()) ?? []
+                    NotificationScheduler.shared.rescheduleAll(habits: habits, username: profile.name)
+                } else {
+                    settings.notificationsEnabled = false
                 }
             }
         }
@@ -84,6 +89,7 @@ struct SettingsView: View {
                 if let habits = try? repository.fetchAll() {
                     for habit in habits {
                         try? repository.delete(id: habit.id)
+                        NotificationScheduler.shared.cancel(for: habit.id)
                     }
                 }
             }

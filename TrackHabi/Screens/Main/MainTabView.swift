@@ -5,6 +5,7 @@ struct MainTabView: View {
     @State private var selectedTab: AppTab = .home
     @State private var showingAddHabit = false
     @State private var showingOnboarding = !UserProfileStore.shared.hasCompletedOnboarding
+    @State private var router = NotificationRouter.shared
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -46,6 +47,10 @@ struct MainTabView: View {
         }
         .sheet(isPresented: $showingAddHabit) {
             AddHabitView { _ in NotificationCenter.default.post(name: .habitDataDidChange, object: nil) }
+        }
+        .onChange(of: router.pendingHabitID) { _, habitID in
+            guard habitID != nil else { return }
+            selectedTab = .habit
         }
         .sheet(isPresented: $showingOnboarding) {
             OnboardingView {

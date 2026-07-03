@@ -102,6 +102,7 @@ final class HabitOverviewViewModel {
     func delete(_ habit: Habit) {
         do {
             try repository.delete(id: habit.id)
+            NotificationScheduler.shared.cancel(for: habit.id)
             load()
         } catch {
             self.error = error

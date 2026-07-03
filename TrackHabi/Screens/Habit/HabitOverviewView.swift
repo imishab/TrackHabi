@@ -3,9 +3,11 @@ import SwiftUI
 struct HabitOverviewView: View {
 
     @State private var viewModel = HabitOverviewViewModel()
+    @State private var router = NotificationRouter.shared
+    @State private var path = NavigationPath()
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             VStack(spacing: 0) {
                 dateStrip
 
@@ -59,6 +61,11 @@ struct HabitOverviewView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: .habitDataDidChange)) { _ in
                 viewModel.load()
+            }
+            .onChange(of: router.pendingHabitID) { _, habitID in
+                guard let habitID, let habit = viewModel.habits.first(where: { $0.id == habitID }) else { return }
+                path.append(habit)
+                router.pendingHabitID = nil
             }
         }
     }

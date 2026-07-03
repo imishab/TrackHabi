@@ -49,6 +49,7 @@ final class HabitDetailViewModel {
 
     func delete() throws {
         try repository.delete(id: habit.id)
+        NotificationScheduler.shared.cancel(for: habit.id)
     }
 
     func habitUpdated(_ habit: Habit) {
