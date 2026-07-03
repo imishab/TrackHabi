@@ -2,21 +2,21 @@ import SwiftUI
 
 struct MainTabView: View {
 
-    @State private var selectedTab: AppTab = .habits
+    @State private var selectedTab: AppTab = .home
     @State private var showingAddHabit = false
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            Tab(AppTab.habits.title,
-                systemImage: AppTab.habits.systemImage,
-                value: .habits) {
-                HabitsListView()
+            Tab(AppTab.home.title,
+                systemImage: AppTab.home.systemImage,
+                value: .home) {
+                HomeView()
             }
 
-            Tab(AppTab.days.title,
-                systemImage: AppTab.days.systemImage,
-                value: .days) {
-                DaysView()
+            Tab(AppTab.habit.title,
+                systemImage: AppTab.habit.systemImage,
+                value: .habit) {
+                HabitOverviewView()
             }
 
             Tab(AppTab.add.title,

@@ -1,8 +1,8 @@
 import SwiftUI
 
-struct DaysView: View {
+struct HabitOverviewView: View {
 
-    @State private var viewModel = DaysViewModel()
+    @State private var viewModel = HabitOverviewViewModel()
 
     var body: some View {
         NavigationStack {
@@ -11,26 +11,43 @@ struct DaysView: View {
 
                 Divider()
 
-                if viewModel.habitsForSelectedDate.isEmpty {
+                if viewModel.groupedHabits.isEmpty {
                     ContentUnavailableView(
                         "No Habits",
-                        systemImage: "calendar",
+                        systemImage: "checklist",
                         description: Text("Nothing scheduled for this day.")
                     )
                     .frame(maxHeight: .infinity)
                 } else {
                     List {
-                        ForEach(viewModel.habitsForSelectedDate) { habit in
-                            HabitRow(
-                                habit: habit,
-                                isCompleted: viewModel.isCompleted(habit),
-                                onToggle: { viewModel.toggle(habit) }
-                            )
+                        ForEach(viewModel.groupedHabits) { group in
+                            Section {
+                                ForEach(group.habits) { habit in
+                                    NavigationLink(value: habit) {
+                                        HabitRow(
+                                            habit: habit,
+                                            isCompleted: viewModel.isCompleted(habit),
+                                            onToggle: { viewModel.toggle(habit) }
+                                        )
+                                    }
+                                }
+                                .onDelete { indexSet in
+                                    for index in indexSet {
+                                        viewModel.delete(group.habits[index])
+                                    }
+                                }
+                            } header: {
+                                Label(group.card.name, systemImage: group.card.icon)
+                                    .foregroundStyle(HabitPalette.color(named: group.card.colorName))
+                            }
                         }
                     }
                 }
             }
-            .navigationTitle("Days")
+            .navigationTitle(dateTitle)
+            .navigationDestination(for: Habit.self) { habit in
+                HabitDetailView(habit: habit, onChange: viewModel.load)
+            }
             .task {
                 viewModel.load()
             }
@@ -38,6 +55,13 @@ struct DaysView: View {
                 viewModel.load()
             }
         }
+    }
+
+    private var dateTitle: String {
+        if viewModel.calendar.isDateInToday(viewModel.selectedDate) {
+            return "Today"
+        }
+        return viewModel.selectedDate.formatted(.dateTime.month(.abbreviated).day().year())
     }
 
     private var dateStrip: some View {
@@ -101,5 +125,5 @@ private struct DayChip: View {
 }
 
 #Preview {
-    DaysView()
+    HabitOverviewView()
 }

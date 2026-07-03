@@ -2,29 +2,27 @@ import Foundation
 
 @Observable
 @MainActor
-final class HabitsViewModel {
+final class CategoryHabitsViewModel {
 
     private(set) var habits: [Habit] = []
     private(set) var completedHabitIDs: Set<UUID> = []
     var error: Error?
 
+    let card: CategoryCard
     private let repository: HabitRepository
-    private let calendar = Calendar.current
-    let today = Date()
+    private let today = Date()
 
-    init(repository: HabitRepository? = nil) {
+    init(card: CategoryCard, repository: HabitRepository? = nil) {
+        self.card = card
         self.repository = repository ?? HabitRepositoryImpl()
-    }
-
-    var todaysHabits: [Habit] {
-        habits
-            .filter { !$0.isArchived && $0.isScheduled(on: today, calendar: calendar) }
-            .sorted { $0.createdAt < $1.createdAt }
     }
 
     func load() {
         do {
-            habits = try repository.fetchAll()
+            let all = try repository.fetchAll()
+            habits = all
+                .filter { !$0.isArchived && $0.categoryID == card.categoryID }
+                .sorted { $0.createdAt < $1.createdAt }
             let completions = try repository.completions(on: today)
             completedHabitIDs = Set(completions.map(\.habitID))
         } catch {
@@ -44,15 +42,6 @@ final class HabitsViewModel {
             } else {
                 completedHabitIDs.remove(habit.id)
             }
-        } catch {
-            self.error = error
-        }
-    }
-
-    func delete(_ habit: Habit) {
-        do {
-            try repository.delete(id: habit.id)
-            load()
         } catch {
             self.error = error
         }
