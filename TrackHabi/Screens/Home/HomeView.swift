@@ -4,19 +4,34 @@ struct HomeView: View {
 
     @State private var viewModel = HomeViewModel()
     @State private var showingAddCategory = false
+    @State private var scrollOffset: CGFloat = 0
+
+    private let collapseThreshold: CGFloat = 36
+
+    private var collapseProgress: Double {
+        Double(min(max(scrollOffset / collapseThreshold, 0), 1))
+    }
 
     var body: some View {
         NavigationStack {
             Group {
                 if viewModel.habits.isEmpty {
-                    ContentUnavailableView(
-                        "No Habits Yet",
-                        systemImage: "square.grid.2x2",
-                        description: Text("Tap + to add your first habit.")
-                    )
+                    VStack(spacing: 0) {
+                        greetingHeader
+                            .padding(.horizontal)
+                            .padding(.top, 8)
+                        ContentUnavailableView(
+                            "No Habits Yet",
+                            systemImage: "square.grid.2x2",
+                            description: Text("Tap + to add your first habit.")
+                        )
+                        .frame(maxHeight: .infinity)
+                    }
                 } else {
                     ScrollView {
                         VStack(spacing: 14) {
+                            greetingHeader
+                                .opacity(1 - collapseProgress)
                             topStreakCard
                             todayCompletionCard
                             categorySlider
@@ -27,9 +42,21 @@ struct HomeView: View {
                         }
                         .padding()
                     }
+                    .onScrollGeometryChange(for: CGFloat.self) { geometry in
+                        geometry.contentOffset.y + geometry.contentInsets.top
+                    } action: { _, newValue in
+                        scrollOffset = newValue
+                    }
                 }
             }
-            .navigationTitle(greetingTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Home")
+                        .font(.headline)
+                        .opacity(collapseProgress)
+                }
+            }
             .navigationDestination(for: CategoryCard.self) { card in
                 CategoryHabitsView(card: card)
             }
@@ -45,17 +72,32 @@ struct HomeView: View {
         }
     }
 
-    private var greetingTitle: String {
-        let hour = Calendar.current.component(.hour, from: Date())
-        let period: String
-        switch hour {
-        case 0..<12:  period = "Good Morning"
-        case 12..<17: period = "Good Afternoon"
-        default:      period = "Good Evening"
-        }
+    private var greetingHeader: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(greetingPeriod)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
 
-        let name = UserProfileStore.shared.name
-        return name.isEmpty ? period : "\(period), \(name)"
+            if !greetingName.isEmpty {
+                Text(greetingName)
+                    .font(.title2.weight(.bold))
+                    .foregroundStyle(.primary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var greetingPeriod: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 0..<12:  return "Good Morning"
+        case 12..<17: return "Good Afternoon"
+        default:      return "Good Evening"
+        }
+    }
+
+    private var greetingName: String {
+        UserProfileStore.shared.name
     }
 
     // MARK: - Top Streak
