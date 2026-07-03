@@ -19,7 +19,7 @@ struct HabitRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(habit.title)
                     .font(.body.weight(.medium))
-                Text(habit.isDaily ? "Every day" : scheduleSummary)
+                Text(scheduleLine)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -48,5 +48,11 @@ struct HabitRow: View {
             .filter { habit.scheduledDays.contains($0) }
             .map(\.shortLabel)
             .joined(separator: ", ")
+    }
+
+    private var scheduleLine: String {
+        let days = habit.isDaily ? "Every day" : scheduleSummary
+        guard let reminderTime = habit.reminderTime else { return days }
+        return "\(days)  |  \(reminderTime.formatted(.dateTime.hour().minute()))"
     }
 }
