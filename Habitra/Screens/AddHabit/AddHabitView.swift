@@ -108,7 +108,7 @@ struct AddHabitView: View {
                             Text(day.shortLabel.prefix(1))
                                 .font(.caption.weight(.semibold))
                                 .frame(width: 32, height: 32)
-                                .background(Circle().fill(isOn ? HabitPalette.color(named: viewModel.colorName) : Color.secondary.opacity(0.15)))
+                                .background(Circle().fill(isOn ? HabitPalette.color(named: HabitPalette.colorNames[0]) : Color.secondary.opacity(0.15)))
                                 .foregroundStyle(isOn ? .white : .primary)
                                 .onTapGesture { viewModel.toggleDay(day) }
                         }
