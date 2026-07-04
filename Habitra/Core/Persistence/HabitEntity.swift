@@ -10,6 +10,7 @@ final class HabitEntity: NSManagedObject {
     @NSManaged var colorName: String
     @NSManaged var scheduledDaysMask: Int16
     @NSManaged var reminderTime: Date?
+    @NSManaged var reminderToneRaw: String?
     @NSManaged var startDate: Date?
     @NSManaged var endDate: Date?
     @NSManaged var createdAt: Date
@@ -60,6 +61,11 @@ final class HabitEntity: NSManagedObject {
         reminderTime.attributeType = .dateAttributeType
         reminderTime.isOptional = true
 
+        let reminderToneRaw = NSAttributeDescription()
+        reminderToneRaw.name = "reminderToneRaw"
+        reminderToneRaw.attributeType = .stringAttributeType
+        reminderToneRaw.isOptional = true
+
         let startDate = NSAttributeDescription()
         startDate.name = "startDate"
         startDate.attributeType = .dateAttributeType
@@ -87,7 +93,7 @@ final class HabitEntity: NSManagedObject {
 
         entity.properties = [
             id, title, notes, icon, colorName, scheduledDaysMask,
-            reminderTime, startDate, endDate, createdAt, isArchived, categoryID
+            reminderTime, reminderToneRaw, startDate, endDate, createdAt, isArchived, categoryID
         ]
         entity.uniquenessConstraints = [["id"]]
         return entity
@@ -105,6 +111,7 @@ extension HabitEntity {
             colorName: colorName,
             scheduledDays: Weekday.set(fromMask: scheduledDaysMask),
             reminderTime: reminderTime,
+            reminderTone: reminderToneRaw.flatMap(ReminderTone.init(rawValue:)) ?? .system,
             startDate: startDate,
             endDate: endDate,
             createdAt: createdAt,
@@ -121,6 +128,7 @@ extension HabitEntity {
         colorName = habit.colorName
         scheduledDaysMask = Weekday.mask(from: habit.scheduledDays)
         reminderTime = habit.reminderTime
+        reminderToneRaw = habit.reminderTone.rawValue
         startDate = habit.startDate
         endDate = habit.endDate
         createdAt = habit.createdAt

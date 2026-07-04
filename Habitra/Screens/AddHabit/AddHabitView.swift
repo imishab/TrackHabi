@@ -118,6 +118,14 @@ struct AddHabitView: View {
                     Toggle("Remind Me", isOn: $viewModel.isReminderEnabled.animation())
                     if viewModel.isReminderEnabled {
                         DatePicker("Time", selection: $viewModel.reminderTime, displayedComponents: .hourAndMinute)
+                        Picker("Sound", selection: $viewModel.reminderTone) {
+                            ForEach(ReminderTone.allCases) { tone in
+                                Text(tone.displayName).tag(tone)
+                            }
+                        }
+                        .onChange(of: viewModel.reminderTone) { _, tone in
+                            TonePlayer.shared.preview(tone)
+                        }
                     }
                 }
 

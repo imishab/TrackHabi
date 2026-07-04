@@ -64,7 +64,7 @@ final class NotificationScheduler {
         let content = UNMutableNotificationContent()
         content.title = trimmedName.isEmpty ? "Habit Reminder" : "Hey \(trimmedName)"
         content.body = "It's time to complete \"\(habit.title)\""
-        content.sound = .default
+        content.sound = sound(for: habit.reminderTone)
         content.userInfo = [Self.habitIDKey: habit.id.uuidString]
 
         for weekday in habit.scheduledDays {
@@ -93,5 +93,10 @@ final class NotificationScheduler {
 
     private func identifier(habitID: UUID, weekday: Weekday) -> String {
         "\(identifierPrefix)\(habitID.uuidString)-\(weekday.rawValue)"
+    }
+
+    private func sound(for tone: ReminderTone) -> UNNotificationSound {
+        guard let fileName = tone.soundFileName else { return .default }
+        return UNNotificationSound(named: UNNotificationSoundName(fileName))
     }
 }

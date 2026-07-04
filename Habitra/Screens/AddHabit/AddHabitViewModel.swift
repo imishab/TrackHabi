@@ -14,6 +14,7 @@ final class AddHabitViewModel {
 
     var isReminderEnabled: Bool
     var reminderTime: Date
+    var reminderTone: ReminderTone
 
     var isStartDateEnabled: Bool
     var startDate: Date
@@ -41,6 +42,7 @@ final class AddHabitViewModel {
 
         self.isReminderEnabled = habit?.reminderTime != nil
         self.reminderTime = habit?.reminderTime ?? AddHabitViewModel.defaultReminderTime
+        self.reminderTone = habit?.reminderTone ?? .system
 
         self.isStartDateEnabled = habit?.startDate != nil
         self.startDate = habit?.startDate ?? Date()
@@ -94,6 +96,7 @@ final class AddHabitViewModel {
             colorName: colorName,
             scheduledDays: scheduledDays,
             reminderTime: isReminderEnabled ? reminderTime : nil,
+            reminderTone: reminderTone,
             startDate: isStartDateEnabled ? startDate : nil,
             endDate: isEndDateEnabled ? endDate : nil,
             createdAt: editingHabit?.createdAt ?? Date(),
