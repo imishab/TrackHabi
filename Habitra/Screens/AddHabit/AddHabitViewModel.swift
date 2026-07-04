@@ -23,6 +23,7 @@ final class AddHabitViewModel {
     var endDate: Date
 
     var error: Error?
+    var showNotificationPermissionAlert = false
 
     private let repository: HabitRepository
     private let categoryRepository: HabitCategoryRepository
@@ -83,6 +84,21 @@ final class AddHabitViewModel {
             scheduledDays.remove(day)
         } else {
             scheduledDays.insert(day)
+        }
+    }
+
+    /// Called as soon as the "Remind Me" toggle is switched on, so we ask for notification permission
+    /// right away rather than waiting until the habit is saved.
+    func reminderToggled(_ enabled: Bool) {
+        guard enabled else { return }
+        Task {
+            let granted = await NotificationScheduler.shared.requestAuthorizationIfNeeded()
+            if granted {
+                AppSettingsStore.shared.notificationsEnabled = true
+            } else {
+                isReminderEnabled = false
+                showNotificationPermissionAlert = true
+            }
         }
     }
 

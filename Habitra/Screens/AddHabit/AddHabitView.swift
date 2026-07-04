@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct AddHabitView: View {
 
@@ -116,6 +117,9 @@ struct AddHabitView: View {
 
                 Section("Reminder") {
                     Toggle("Remind Me", isOn: $viewModel.isReminderEnabled.animation())
+                        .onChange(of: viewModel.isReminderEnabled) { _, enabled in
+                            viewModel.reminderToggled(enabled)
+                        }
                     if viewModel.isReminderEnabled {
                         DatePicker("Time", selection: $viewModel.reminderTime, displayedComponents: .hourAndMinute)
                         Picker("Sound", selection: $viewModel.reminderTone) {
@@ -165,6 +169,16 @@ struct AddHabitView: View {
             }
             .task {
                 viewModel.loadCategories()
+            }
+            .alert("Notifications Disabled", isPresented: $viewModel.showNotificationPermissionAlert) {
+                Button("Open Settings") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("To get reminders, allow notifications for Habitra in Settings.")
             }
         }
     }

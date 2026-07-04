@@ -1,9 +1,11 @@
 import SwiftUI
+import UIKit
 import UserNotifications
 
 struct SettingsView: View {
 
     @State private var showingClearConfirmation = false
+    @State private var showingNotificationPermissionAlert = false
     @State private var profile = UserProfileStore.shared
     @State private var settings = AppSettingsStore.shared
     private let repository: HabitRepository = HabitRepositoryImpl()
@@ -77,8 +79,19 @@ struct SettingsView: View {
                     NotificationScheduler.shared.rescheduleAll(habits: habits, username: profile.name)
                 } else {
                     settings.notificationsEnabled = false
+                    showingNotificationPermissionAlert = true
                 }
             }
+        }
+        .alert("Notifications Disabled", isPresented: $showingNotificationPermissionAlert) {
+            Button("Open Settings") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("To get reminders, allow notifications for Habitra in Settings.")
         }
         .confirmationDialog(
             "Delete All Habits?",
