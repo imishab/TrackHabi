@@ -5,6 +5,7 @@ enum ReminderTone: String, CaseIterable, Identifiable, Hashable {
     case tone1
     case tone2
     case tone3
+    case tone4
 
     var id: String { rawValue }
 
@@ -14,6 +15,7 @@ enum ReminderTone: String, CaseIterable, Identifiable, Hashable {
         case .tone1: return "Tone 1"
         case .tone2: return "Tone 2"
         case .tone3: return "Tone 3"
+        case .tone4: return "Tone 4"
         }
     }
 
