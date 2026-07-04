@@ -8,7 +8,7 @@ final class PersistenceController {
 
     init(inMemory: Bool = false) {
         container = NSPersistentContainer(
-            name: "TrackHabi",
+            name: "Habitra",
             managedObjectModel: Self.makeModel()
         )
 

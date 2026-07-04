@@ -2,7 +2,7 @@ import SwiftUI
 import UserNotifications
 
 @main
-struct TrackHabiApp: App {
+struct HabitraApp: App {
 
     @State private var showSplash = true
     @State private var settings = AppSettingsStore.shared

@@ -1,11 +1,11 @@
-# TrackHabi
+# Habitra
 ### iOS App Overview · July 2026
 
 ---
 
-## What is TrackHabi?
+## What is Habitra?
 
-TrackHabi is a native iOS habit-tracking app built entirely with **SwiftUI** and **Swift Concurrency**. It lets users create daily/weekly habits, check them off, and track streaks — all locally, with a polished dark-mode UI.
+Habitra is a native iOS habit-tracking app built entirely with **SwiftUI** and **Swift Concurrency**. It lets users create daily/weekly habits, check them off, and track streaks — all locally, with a polished dark-mode UI.
 
 > Zero third-party dependencies. 100% Apple frameworks. No network layer — everything is stored on-device.
 
@@ -56,10 +56,10 @@ The app is split into **3 clear layers**. Each layer only talks to the one below
 ## File Structure
 
 ```
-TrackHabi/
+Habitra/
 │
 ├── App/
-│   └── TrackHabiApp.swift         ← @main entry point, dark mode, splash logic
+│   └── HabitraApp.swift         ← @main entry point, dark mode, splash logic
 │
 ├── Core/
 │   └── Persistence/

@@ -13,7 +13,7 @@ struct OnboardingView: View {
     var body: some View {
         VStack(spacing: 24) {
             VStack(spacing: 8) {
-                Text("Welcome to TrackHabi")
+                Text("Welcome to Habitra")
                     .font(.title2.weight(.bold))
                 Text("What would you like to call you?")
                     .font(.subheadline)

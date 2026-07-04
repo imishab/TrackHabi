@@ -11,14 +11,14 @@ struct AboutView: View {
                     .frame(width: 72, height: 72)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
 
-                Text("TrackHabi")
+                Text("Habitra")
                     .font(.title2.weight(.bold))
 
                 Text("Version \(appVersion)")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
 
-                Text("TrackHabi helps you build lasting routines by making it simple to plan, track, and reflect on your daily habits — with streaks, categories, and clear progress at a glance.")
+                Text("Habitra helps you build lasting routines by making it simple to plan, track, and reflect on your daily habits — with streaks, categories, and clear progress at a glance.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)

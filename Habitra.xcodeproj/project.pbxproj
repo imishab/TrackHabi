@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		BE6CB61B2FE54CCF00594402 /* TrackHabi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrackHabi.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BE6CB61B2FE54CCF00594402 /* Habitra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Habitra.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		BE6CB5F22FE546A000594402 /* TrackHabi */ = {
+		BE6CB5F22FE546A000594402 /* Habitra */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = TrackHabi;
+			path = Habitra;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -32,17 +32,17 @@
 		BE6CB5E72FE546A000594402 = {
 			isa = PBXGroup;
 			children = (
-				BE6CB5F22FE546A000594402 /* TrackHabi */,
-				BE6CB61B2FE54CCF00594402 /* TrackHabi.app */,
+				BE6CB5F22FE546A000594402 /* Habitra */,
+				BE6CB61B2FE54CCF00594402 /* Habitra.app */,
 			);
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		BE6CB5EF2FE546A000594402 /* TrackHabi */ = {
+		BE6CB5EF2FE546A000594402 /* Habitra */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = BE6CB5FB2FE546A200594402 /* Build configuration list for PBXNativeTarget "TrackHabi" */;
+			buildConfigurationList = BE6CB5FB2FE546A200594402 /* Build configuration list for PBXNativeTarget "Habitra" */;
 			buildPhases = (
 				BE6CB5EC2FE546A000594402 /* Sources */,
 				BE6CB5ED2FE546A000594402 /* Frameworks */,
@@ -53,13 +53,13 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				BE6CB5F22FE546A000594402 /* TrackHabi */,
+				BE6CB5F22FE546A000594402 /* Habitra */,
 			);
-			name = TrackHabi;
+			name = Habitra;
 			packageProductDependencies = (
 			);
-			productName = TrackHabi;
-			productReference = BE6CB61B2FE54CCF00594402 /* TrackHabi.app */;
+			productName = Habitra;
+			productReference = BE6CB61B2FE54CCF00594402 /* Habitra.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -77,7 +77,7 @@
 					};
 				};
 			};
-			buildConfigurationList = BE6CB5EB2FE546A000594402 /* Build configuration list for PBXProject "TrackHabi" */;
+			buildConfigurationList = BE6CB5EB2FE546A000594402 /* Build configuration list for PBXProject "Habitra" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -91,7 +91,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				BE6CB5EF2FE546A000594402 /* TrackHabi */,
+				BE6CB5EF2FE546A000594402 /* Habitra */,
 			);
 		};
 /* End PBXProject section */
@@ -307,7 +307,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		BE6CB5EB2FE546A000594402 /* Build configuration list for PBXProject "TrackHabi" */ = {
+		BE6CB5EB2FE546A000594402 /* Build configuration list for PBXProject "Habitra" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BE6CB5F92FE546A200594402 /* Debug */,
@@ -316,7 +316,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		BE6CB5FB2FE546A200594402 /* Build configuration list for PBXNativeTarget "TrackHabi" */ = {
+		BE6CB5FB2FE546A200594402 /* Build configuration list for PBXNativeTarget "Habitra" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BE6CB5FC2FE546A200594402 /* Debug */,

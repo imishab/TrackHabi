@@ -11,7 +11,7 @@ struct PrivacyPolicyView: View {
                 Text("Your data stays on your device.")
                     .font(.subheadline.weight(.semibold))
 
-                Text("TrackHabi stores your habits, categories, completions, and profile information (name and email) locally on your device. This data is not uploaded to any server and is not shared with third parties.")
+                Text("Habitra stores your habits, categories, completions, and profile information (name and email) locally on your device. This data is not uploaded to any server and is not shared with third parties.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
