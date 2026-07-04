@@ -87,17 +87,19 @@ struct HabitDetailView: View {
     }
 
     private var calendarGrid: some View {
-        let days = last35Days()
+        let days = currentMonthDays()
         let columns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 7)
 
         return VStack(alignment: .leading, spacing: 12) {
-            Text("Last 5 Weeks")
+            Text("This Month")
                 .font(.headline)
 
             LazyVGrid(columns: columns, spacing: 6) {
                 ForEach(days, id: \.self) { day in
                     let completed = viewModel.isCompleted(on: day)
                     let scheduled = viewModel.habit.isScheduled(on: day)
+                    let isFuture = isFutureDay(day)
+                    let isTappable = scheduled && !isFuture
                     Text(dayNumber(day))
                         .font(.caption2)
                         .frame(maxWidth: .infinity, minHeight: 32)
@@ -110,8 +112,9 @@ struct HabitDetailView: View {
                                 )
                         )
                         .foregroundStyle(completed ? .white : .primary)
+                        .opacity(isFuture ? 0.4 : 1)
                         .onTapGesture {
-                            guard scheduled else { return }
+                            guard isTappable else { return }
                             let wasCompleted = completed
                             viewModel.toggle(day)
                             if !wasCompleted, viewModel.isCompleted(on: day) {
@@ -125,12 +128,24 @@ struct HabitDetailView: View {
         }
     }
 
-    private func last35Days() -> [Date] {
+    private func currentMonthDays() -> [Date] {
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        return (0..<35).reversed().compactMap {
-            calendar.date(byAdding: .day, value: -$0, to: today)
+        let today = Date()
+        guard
+            let monthInterval = calendar.dateInterval(of: .month, for: today),
+            let daysInMonth = calendar.range(of: .day, in: .month, for: today)?.count
+        else {
+            return [calendar.startOfDay(for: today)]
         }
+        let firstOfMonth = monthInterval.start
+        return (0..<daysInMonth).compactMap {
+            calendar.date(byAdding: .day, value: $0, to: firstOfMonth)
+        }
+    }
+
+    private func isFutureDay(_ date: Date) -> Bool {
+        let calendar = Calendar.current
+        return calendar.startOfDay(for: date) > calendar.startOfDay(for: Date())
     }
 
     private func dayNumber(_ date: Date) -> String {
