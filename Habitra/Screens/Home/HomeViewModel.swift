@@ -1,8 +1,9 @@
 import Foundation
 
 struct TrackingDay: Identifiable {
-    enum Status {
-        case completed, missed, inactive
+    enum Status: Equatable {
+        case tracked(ratio: Double)
+        case inactive
     }
 
     let id = UUID()
@@ -112,10 +113,11 @@ final class HomeViewModel {
                 continue
             }
 
-            let allCompleted = scheduled.allSatisfy { habit in
+            let completedCount = scheduled.filter { habit in
                 (completionDatesByHabit[habit.id] ?? []).contains(day)
-            }
-            days.append(TrackingDay(date: day, status: allCompleted ? .completed : .missed))
+            }.count
+            let ratio = Double(completedCount) / Double(scheduled.count)
+            days.append(TrackingDay(date: day, status: .tracked(ratio: ratio)))
         }
 
         return days

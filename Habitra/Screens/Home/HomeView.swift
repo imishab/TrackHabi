@@ -314,10 +314,9 @@ struct HomeView: View {
 
     private func color(for status: TrackingDay.Status?) -> Color {
         switch status {
-        case .completed: .green
-        case .missed:     .red
-        case .inactive:   Color.secondary.opacity(0.18)
-        case nil:         .clear
+        case .tracked(let ratio): HabitPalette.completionColor(for: ratio)
+        case .inactive:           Color.secondary.opacity(0.18)
+        case nil:                 .clear
         }
     }
 }

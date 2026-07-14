@@ -33,4 +33,30 @@ enum HabitPalette {
         default:       .mint
         }
     }
+
+    /// Red -> orange -> yellow -> yellow-green -> green, interpolated by completion ratio (0...1).
+    private static let completionStops: [(ratio: Double, r: Double, g: Double, b: Double)] = [
+        (0.00, 1.000, 0.231, 0.188), // red          #FF3B30
+        (0.25, 1.000, 0.584, 0.000), // orange       #FF9500
+        (0.50, 1.000, 0.800, 0.000), // yellow       #FFCC00
+        (0.75, 0.545, 0.765, 0.290), // yellow-green #8BC34A
+        (1.00, 0.204, 0.780, 0.349)  // green        #34C759
+    ]
+
+    static func completionColor(for ratio: Double) -> Color {
+        let clamped = min(max(ratio, 0), 1)
+        guard let upperIndex = completionStops.firstIndex(where: { $0.ratio >= clamped }), upperIndex > 0 else {
+            let stop = completionStops[0]
+            return Color(red: stop.r, green: stop.g, blue: stop.b)
+        }
+
+        let lower = completionStops[upperIndex - 1]
+        let upper = completionStops[upperIndex]
+        let t = (clamped - lower.ratio) / (upper.ratio - lower.ratio)
+        return Color(
+            red: lower.r + (upper.r - lower.r) * t,
+            green: lower.g + (upper.g - lower.g) * t,
+            blue: lower.b + (upper.b - lower.b) * t
+        )
+    }
 }
