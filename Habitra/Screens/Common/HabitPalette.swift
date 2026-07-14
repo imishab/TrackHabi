@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 enum HabitPalette {
 
@@ -13,25 +14,64 @@ enum HabitPalette {
         "pencil", "heart.fill", "moon.stars.fill", "flame.fill",
         "star.fill", "bicycle", "airplane", "gamecontroller.fill",
         "paintbrush.fill", "music.note", "camera.fill", "car.fill",
-        "gift.fill", "briefcase.fill", "graduationcap.fill", "pawprint.fill"
+        "gift.fill", "briefcase.fill", "graduationcap.fill", "pawprint.fill",
+        "fork.knife", "cart.fill", "bag.fill", "house.fill",
+        "bolt.fill", "sun.max.fill", "cloud.fill", "snowflake",
+        "tree.fill", "figure.walk", "figure.pool.swim", "sportscourt.fill",
+        "basketball.fill", "soccerball", "guitars.fill", "headphones",
+        "tv.fill", "film.fill", "newspaper.fill", "highlighter",
+        "laptopcomputer", "desktopcomputer", "phone.fill", "message.fill",
+        "envelope.fill", "person.2.fill", "hand.raised.fill", "brain.head.profile",
+        "lungs.fill", "pills.fill", "stethoscope", "tooth.fill",
+        "scissors", "wrench.and.screwdriver.fill", "paintpalette.fill", "ticket.fill",
+        "map.fill", "globe", "sunrise.fill", "sunset.fill",
+        "alarm.fill", "hourglass", "calendar", "checklist",
+        "target", "trophy.fill", "medal.fill", "flag.fill",
+        "banknote.fill", "chart.line.uptrend.xyaxis"
     ]
 
+    /// Custom colors are stored as a hex string (e.g. "#FF3B30") instead of a palette name.
+    static func isCustomColor(_ name: String) -> Bool {
+        name.hasPrefix("#")
+    }
+
     static func color(named name: String) -> Color {
-        switch name {
-        case "green":  .green
-        case "mint":   .mint
-        case "orange": .orange
-        case "pink":   .pink
-        case "purple": .purple
-        case "blue":   .blue
-        case "yellow": .yellow
-        case "red":    .red
-        case "teal":   .teal
-        case "indigo": .indigo
-        case "cyan":   .cyan
-        case "brown":  .brown
-        default:       .mint
+        if isCustomColor(name) {
+            return hexColor(name)
         }
+        switch name {
+        case "green":  return .green
+        case "mint":   return .mint
+        case "orange": return .orange
+        case "pink":   return .pink
+        case "purple": return .purple
+        case "blue":   return .blue
+        case "yellow": return .yellow
+        case "red":    return .red
+        case "teal":   return .teal
+        case "indigo": return .indigo
+        case "cyan":   return .cyan
+        case "brown":  return .brown
+        default:       return .mint
+        }
+    }
+
+    static func hexColor(_ hex: String) -> Color {
+        var hexString = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        hexString.removeAll { $0 == "#" }
+        var rgbValue: UInt64 = 0
+        Scanner(string: hexString).scanHexInt64(&rgbValue)
+        let r = Double((rgbValue & 0xFF0000) >> 16) / 255
+        let g = Double((rgbValue & 0x00FF00) >> 8) / 255
+        let b = Double(rgbValue & 0x0000FF) / 255
+        return Color(red: r, green: g, blue: b)
+    }
+
+    static func hex(from color: Color) -> String {
+        let uiColor = UIColor(color)
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        uiColor.getRed(&r, green: &g, blue: &b, alpha: &a)
+        return String(format: "#%02X%02X%02X", Int(r * 255), Int(g * 255), Int(b * 255))
     }
 
     /// Red -> orange -> yellow -> yellow-green -> green, interpolated by completion ratio (0...1).

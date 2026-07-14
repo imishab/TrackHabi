@@ -17,6 +17,13 @@ struct AddHabitView: View {
         }
     }
 
+    private var customColorBinding: Binding<Color> {
+        Binding(
+            get: { HabitPalette.color(named: viewModel.colorName) },
+            set: { viewModel.colorName = HabitPalette.hex(from: $0) }
+        )
+    }
+
     init(habit: Habit? = nil, onSave: @escaping (Habit) -> Void) {
         _viewModel = State(initialValue: AddHabitViewModel(habit: habit))
         self.onSave = onSave
@@ -74,6 +81,17 @@ struct AddHabitView: View {
                                 }
                                 .onTapGesture { viewModel.colorName = name }
                         }
+
+                        ColorPicker("", selection: customColorBinding, supportsOpacity: false)
+                            .labelsHidden()
+                            .frame(width: 32, height: 32)
+                            .overlay {
+                                if HabitPalette.isCustomColor(viewModel.colorName) {
+                                    Circle()
+                                        .stroke(.white, lineWidth: 2)
+                                        .allowsHitTesting(false)
+                                }
+                            }
                     }
                     .padding(.vertical, 4)
                 }
