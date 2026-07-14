@@ -9,6 +9,13 @@ struct AddHabitView: View {
     let onSave: (Habit) -> Void
 
     private let columns = Array(repeating: GridItem(.flexible()), count: 6)
+    private let iconsPerPage = 12
+
+    private var iconPages: [[String]] {
+        stride(from: 0, to: HabitPalette.icons.count, by: iconsPerPage).map {
+            Array(HabitPalette.icons[$0..<min($0 + iconsPerPage, HabitPalette.icons.count)])
+        }
+    }
 
     init(habit: Habit? = nil, onSave: @escaping (Habit) -> Void) {
         _viewModel = State(initialValue: AddHabitViewModel(habit: habit))
@@ -28,22 +35,30 @@ struct AddHabitView: View {
                 }
 
                 Section("Icon") {
-                    LazyVGrid(columns: columns, spacing: 12) {
-                        ForEach(HabitPalette.icons, id: \.self) { icon in
-                            Image(systemName: icon)
-                                .font(.title3)
-                                .frame(width: 36, height: 36)
-                                .background(
-                                    Circle().fill(
-                                        icon == viewModel.icon
-                                            ? HabitPalette.color(named: viewModel.colorName).opacity(0.3)
-                                            : Color.clear
-                                    )
-                                )
-                                .onTapGesture { viewModel.icon = icon }
+                    TabView {
+                        ForEach(Array(iconPages.enumerated()), id: \.offset) { _, page in
+                            LazyVGrid(columns: columns, spacing: 12) {
+                                ForEach(page, id: \.self) { icon in
+                                    Image(systemName: icon)
+                                        .font(.title3)
+                                        .frame(width: 36, height: 36)
+                                        .background(
+                                            Circle().fill(
+                                                icon == viewModel.icon
+                                                    ? HabitPalette.color(named: viewModel.colorName).opacity(0.3)
+                                                    : Color.clear
+                                            )
+                                        )
+                                        .onTapGesture { viewModel.icon = icon }
+                                }
+                            }
+                            .padding(.top, 4)
+                            .padding(.bottom, 20)
                         }
                     }
-                    .padding(.vertical, 4)
+                    .tabViewStyle(.page(indexDisplayMode: iconPages.count > 1 ? .always : .never))
+                    .frame(height: 140)
+                    .listRowInsets(EdgeInsets())
                 }
 
                 Section("Color") {
