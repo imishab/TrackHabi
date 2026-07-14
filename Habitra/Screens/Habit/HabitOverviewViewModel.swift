@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 @Observable
 @MainActor
@@ -38,7 +39,7 @@ final class HabitOverviewViewModel {
     var habitsForSelectedDate: [Habit] {
         habits
             .filter { !$0.isArchived && $0.isWithinActiveRange(on: selectedDate, calendar: calendar) }
-            .sorted { $0.createdAt < $1.createdAt }
+            .sorted(by: Habit.displayOrder)
     }
 
     func isEnabled(_ habit: Habit) -> Bool {
@@ -106,6 +107,26 @@ final class HabitOverviewViewModel {
             load()
         } catch {
             self.error = error
+        }
+    }
+
+    func moveHabit(in group: HabitCategoryGroup, from source: IndexSet, to destination: Int) {
+        var reorderedHabits = group.habits
+        reorderedHabits.move(fromOffsets: source, toOffset: destination)
+
+        do {
+            for (index, var habit) in reorderedHabits.enumerated() {
+                habit.sortIndex = index
+                try repository.update(habit)
+
+                if let habitIndex = habits.firstIndex(where: { $0.id == habit.id }) {
+                    habits[habitIndex] = habit
+                }
+            }
+            NotificationCenter.default.post(name: .habitDataDidChange, object: nil)
+        } catch {
+            self.error = error
+            load()
         }
     }
 

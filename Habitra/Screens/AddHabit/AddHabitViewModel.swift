@@ -116,6 +116,7 @@ final class AddHabitViewModel {
             startDate: isStartDateEnabled ? startDate : nil,
             endDate: isEndDateEnabled ? endDate : nil,
             createdAt: editingHabit?.createdAt ?? Date(),
+            sortIndex: editingHabit?.sortIndex ?? Int(Date().timeIntervalSince1970),
             isArchived: editingHabit?.isArchived ?? false,
             categoryID: selectedCategoryID
         )

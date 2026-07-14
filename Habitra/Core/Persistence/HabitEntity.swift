@@ -14,6 +14,7 @@ final class HabitEntity: NSManagedObject {
     @NSManaged var startDate: Date?
     @NSManaged var endDate: Date?
     @NSManaged var createdAt: Date
+    @NSManaged var sortIndex: Int64
     @NSManaged var isArchived: Bool
     @NSManaged var categoryID: String?
 
@@ -81,6 +82,12 @@ final class HabitEntity: NSManagedObject {
         createdAt.attributeType = .dateAttributeType
         createdAt.isOptional = false
 
+        let sortIndex = NSAttributeDescription()
+        sortIndex.name = "sortIndex"
+        sortIndex.attributeType = .integer64AttributeType
+        sortIndex.isOptional = false
+        sortIndex.defaultValue = 0
+
         let isArchived = NSAttributeDescription()
         isArchived.name = "isArchived"
         isArchived.attributeType = .booleanAttributeType
@@ -93,7 +100,7 @@ final class HabitEntity: NSManagedObject {
 
         entity.properties = [
             id, title, notes, icon, colorName, scheduledDaysMask,
-            reminderTime, reminderToneRaw, startDate, endDate, createdAt, isArchived, categoryID
+            reminderTime, reminderToneRaw, startDate, endDate, createdAt, sortIndex, isArchived, categoryID
         ]
         entity.uniquenessConstraints = [["id"]]
         return entity
@@ -115,6 +122,7 @@ extension HabitEntity {
             startDate: startDate,
             endDate: endDate,
             createdAt: createdAt,
+            sortIndex: Int(sortIndex),
             isArchived: isArchived,
             categoryID: categoryID.flatMap { UUID(uuidString: $0) }
         )
@@ -132,6 +140,7 @@ extension HabitEntity {
         startDate = habit.startDate
         endDate = habit.endDate
         createdAt = habit.createdAt
+        sortIndex = Int64(habit.sortIndex)
         isArchived = habit.isArchived
         categoryID = habit.categoryID?.uuidString
     }

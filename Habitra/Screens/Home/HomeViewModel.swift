@@ -141,7 +141,7 @@ final class HomeViewModel {
     func habits(for card: CategoryCard) -> [Habit] {
         habits
             .filter { !$0.isArchived && $0.categoryID == card.categoryID }
-            .sorted { $0.createdAt < $1.createdAt }
+            .sorted(by: Habit.displayOrder)
     }
 
     func toggleToday(_ habit: Habit) {

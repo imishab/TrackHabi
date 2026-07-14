@@ -57,7 +57,7 @@ final class CategoryHabitsViewModel {
             let all = try repository.fetchAll()
             habits = all
                 .filter { !$0.isArchived && $0.categoryID == card.categoryID }
-                .sorted { $0.createdAt < $1.createdAt }
+                .sorted(by: Habit.displayOrder)
             loadCompletions()
         } catch {
             self.error = error

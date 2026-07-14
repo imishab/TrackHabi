@@ -12,6 +12,7 @@ struct Habit: Identifiable, Hashable {
     var startDate: Date?
     var endDate: Date?
     var createdAt: Date
+    var sortIndex: Int
     var isArchived: Bool
     var categoryID: UUID?
 
@@ -27,6 +28,7 @@ struct Habit: Identifiable, Hashable {
         startDate: Date? = nil,
         endDate: Date? = nil,
         createdAt: Date = Date(),
+        sortIndex: Int = Int(Date().timeIntervalSince1970),
         isArchived: Bool = false,
         categoryID: UUID? = nil
     ) {
@@ -41,11 +43,19 @@ struct Habit: Identifiable, Hashable {
         self.startDate = startDate
         self.endDate = endDate
         self.createdAt = createdAt
+        self.sortIndex = sortIndex
         self.isArchived = isArchived
         self.categoryID = categoryID
     }
 
     var isDaily: Bool { scheduledDays.count == Weekday.allCases.count }
+
+    static func displayOrder(_ lhs: Habit, _ rhs: Habit) -> Bool {
+        if lhs.sortIndex != rhs.sortIndex {
+            return lhs.sortIndex < rhs.sortIndex
+        }
+        return lhs.createdAt < rhs.createdAt
+    }
 
     /// Whether `date` falls within the habit's active start/end date bounds, ignoring the weekly schedule.
     func isWithinActiveRange(on date: Date, calendar: Calendar = .current) -> Bool {

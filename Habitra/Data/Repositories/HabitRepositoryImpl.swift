@@ -14,7 +14,10 @@ final class HabitRepositoryImpl: HabitRepository {
 
     func fetchAll() throws -> [Habit] {
         let request = HabitEntity.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: true)]
+        request.sortDescriptors = [
+            NSSortDescriptor(key: "sortIndex", ascending: true),
+            NSSortDescriptor(key: "createdAt", ascending: true)
+        ]
         return try context.fetch(request).map { $0.toDomain() }
     }
 

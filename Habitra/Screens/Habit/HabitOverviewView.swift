@@ -48,6 +48,9 @@ struct HabitOverviewView: View {
                                             viewModel.delete(group.habits[index])
                                         }
                                     }
+                                    .onMove { source, destination in
+                                        viewModel.moveHabit(in: group, from: source, to: destination)
+                                    }
                                 }
                             } header: {
                                 groupHeader(group)
@@ -57,6 +60,11 @@ struct HabitOverviewView: View {
                 }
             }
             .navigationTitle(dateTitle)
+            .toolbar {
+                if !viewModel.groupedHabits.isEmpty {
+                    EditButton()
+                }
+            }
             .navigationDestination(for: Habit.self) { habit in
                 HabitDetailView(habit: habit, onChange: viewModel.load)
             }

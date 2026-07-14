@@ -15,6 +15,10 @@ final class PersistenceController {
         if inMemory, let description = container.persistentStoreDescriptions.first {
             description.url = URL(fileURLWithPath: "/dev/null")
         }
+        if let description = container.persistentStoreDescriptions.first {
+            description.shouldMigrateStoreAutomatically = true
+            description.shouldInferMappingModelAutomatically = true
+        }
 
         container.loadPersistentStores { _, error in
             if let error {
