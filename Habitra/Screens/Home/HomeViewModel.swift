@@ -76,10 +76,6 @@ final class HomeViewModel {
         return Double(todayCompletedCount) / Double(todayScheduledCount)
     }
 
-    var recentHabits: [Habit] {
-        Array(activeHabits.sorted { $0.createdAt > $1.createdAt }.prefix(5))
-    }
-
     var monthTitle: String {
         Date().formatted(.dateTime.month(.wide).year())
     }
@@ -146,10 +142,6 @@ final class HomeViewModel {
         habits
             .filter { !$0.isArchived && $0.categoryID == card.categoryID }
             .sorted { $0.createdAt < $1.createdAt }
-    }
-
-    func isCompletedToday(_ habit: Habit) -> Bool {
-        completedTodayIDs.contains(habit.id)
     }
 
     func toggleToday(_ habit: Habit) {

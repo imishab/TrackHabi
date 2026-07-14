@@ -59,4 +59,18 @@ enum HabitPalette {
             blue: lower.b + (upper.b - lower.b) * t
         )
     }
+
+    /// GitHub-contribution-graph style: gray when nothing was done, increasingly saturated
+    /// green as completion ratio (0...1) rises.
+    static let heatmapLegendRatios: [Double] = [0, 0.25, 0.5, 0.75, 1.0]
+
+    static func heatmapColor(for ratio: Double) -> Color {
+        switch ratio {
+        case ..<0.001:  Color.secondary.opacity(0.16)
+        case ..<0.26:   Color.green.opacity(0.35)
+        case ..<0.51:   Color.green.opacity(0.55)
+        case ..<0.76:   Color.green.opacity(0.78)
+        default:        Color.green
+        }
+    }
 }

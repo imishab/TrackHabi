@@ -35,10 +35,7 @@ struct HomeView: View {
                             topStreakCard
                             todayCompletionCard
                             categorySlider
-                            HStack(alignment: .top, spacing: 14) {
-                                recentHabitsCard
-                                habitTrackingCard
-                            }
+                            habitTrackingCard
                         }
                         .padding()
                     }
@@ -247,41 +244,13 @@ struct HomeView: View {
         }
     }
 
-    // MARK: - Recent Habits
-
-    private var recentHabitsCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("RECENT HABITS")
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(.secondary)
-
-            VStack(alignment: .leading, spacing: 12) {
-                ForEach(viewModel.recentHabits) { habit in
-                    let completed = viewModel.isCompletedToday(habit)
-                    HStack(spacing: 8) {
-                        Image(systemName: completed ? "checkmark.square.fill" : "square")
-                            .foregroundStyle(completed ? HabitPalette.color(named: habit.colorName) : .secondary)
-                        Text(habit.title)
-                            .font(.footnote)
-                            .strikethrough(completed)
-                            .foregroundStyle(completed ? .secondary : .primary)
-                            .lineLimit(1)
-                    }
-                }
-            }
-        }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18))
-    }
-
-    // MARK: - Habit Tracking Grid
+    // MARK: - Habit Tracking Heatmap
 
     private var habitTrackingCard: some View {
         let columns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 7)
         let weekdaySymbols = ["S", "M", "T", "W", "T", "F", "S"]
 
-        return VStack(alignment: .leading, spacing: 10) {
+        return VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text("HABIT TRACKING")
                     .font(.caption2.weight(.semibold))
@@ -294,17 +263,29 @@ struct HomeView: View {
             LazyVGrid(columns: columns, spacing: 6) {
                 ForEach(Array(weekdaySymbols.enumerated()), id: \.offset) { _, symbol in
                     Text(symbol)
-                        .font(.system(size: 9, weight: .semibold))
+                        .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity)
                 }
 
                 ForEach(viewModel.trackingDays) { day in
-                    Circle()
-                        .fill(color(for: day.status))
-                        .frame(width: 10, height: 10)
-                        .frame(maxWidth: .infinity)
+                    dayCell(day)
                 }
+            }
+
+            HStack(spacing: 4) {
+                Spacer()
+                Text("Less")
+                    .font(.system(size: 9))
+                    .foregroundStyle(.secondary)
+                ForEach(HabitPalette.heatmapLegendRatios, id: \.self) { ratio in
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(HabitPalette.heatmapColor(for: ratio))
+                        .frame(width: 13, height: 13)
+                }
+                Text("More")
+                    .font(.system(size: 9))
+                    .foregroundStyle(.secondary)
             }
         }
         .padding()
@@ -312,10 +293,31 @@ struct HomeView: View {
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18))
     }
 
+    private func dayCell(_ day: TrackingDay) -> some View {
+        RoundedRectangle(cornerRadius: 6)
+            .fill(color(for: day.status))
+            .aspectRatio(1, contentMode: .fit)
+            .overlay {
+                if let date = day.date {
+                    Text(date.formatted(.dateTime.day()))
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(textColor(for: day.status))
+                }
+            }
+    }
+
     private func color(for status: TrackingDay.Status?) -> Color {
         switch status {
-        case .tracked(let ratio): HabitPalette.completionColor(for: ratio)
-        case .inactive:           Color.secondary.opacity(0.18)
+        case .tracked(let ratio): HabitPalette.heatmapColor(for: ratio)
+        case .inactive:           HabitPalette.heatmapColor(for: 0)
+        case nil:                 .clear
+        }
+    }
+
+    private func textColor(for status: TrackingDay.Status?) -> Color {
+        switch status {
+        case .tracked(let ratio): ratio > 0.5 ? .white : .primary
+        case .inactive:           .secondary
         case nil:                 .clear
         }
     }
