@@ -5,6 +5,7 @@ struct HabitOverviewView: View {
     @State private var viewModel = HabitOverviewViewModel()
     @State private var router = NotificationRouter.shared
     @State private var path = NavigationPath()
+    @State private var collapsedGroupIDs: Set<String> = []
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -24,31 +25,32 @@ struct HabitOverviewView: View {
                     List {
                         ForEach(viewModel.groupedHabits) { group in
                             Section {
-                                ForEach(group.habits) { habit in
-                                    HabitRow(
-                                        habit: habit,
-                                        isCompleted: viewModel.isCompleted(habit),
-                                        isEnabled: viewModel.isEnabled(habit),
-                                        date: viewModel.selectedDate,
-                                        onToggle: { viewModel.toggle(habit) }
-                                    )
-                                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                        Button {
-                                            path.append(habit)
-                                        } label: {
-                                            Label("Details", systemImage: "info.circle")
+                                if !isCollapsed(group) {
+                                    ForEach(group.habits) { habit in
+                                        HabitRow(
+                                            habit: habit,
+                                            isCompleted: viewModel.isCompleted(habit),
+                                            isEnabled: viewModel.isEnabled(habit),
+                                            date: viewModel.selectedDate,
+                                            onToggle: { viewModel.toggle(habit) }
+                                        )
+                                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                            Button {
+                                                path.append(habit)
+                                            } label: {
+                                                Label("Details", systemImage: "info.circle")
+                                            }
+                                            .tint(.blue)
                                         }
-                                        .tint(.blue)
                                     }
-                                }
-                                .onDelete { indexSet in
-                                    for index in indexSet {
-                                        viewModel.delete(group.habits[index])
+                                    .onDelete { indexSet in
+                                        for index in indexSet {
+                                            viewModel.delete(group.habits[index])
+                                        }
                                     }
                                 }
                             } header: {
-                                Label(group.card.name, systemImage: group.card.icon)
-                                    .foregroundStyle(HabitPalette.color(named: group.card.colorName))
+                                groupHeader(group)
                             }
                         }
                     }
@@ -87,6 +89,44 @@ struct HabitOverviewView: View {
         ) { date in
             viewModel.selectedDate = date
         }
+    }
+
+    private func isCollapsed(_ group: HabitCategoryGroup) -> Bool {
+        collapsedGroupIDs.contains(group.id)
+    }
+
+    private func toggleGroup(_ group: HabitCategoryGroup) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            if collapsedGroupIDs.contains(group.id) {
+                collapsedGroupIDs.remove(group.id)
+            } else {
+                collapsedGroupIDs.insert(group.id)
+            }
+        }
+    }
+
+    private func groupHeader(_ group: HabitCategoryGroup) -> some View {
+        Button {
+            toggleGroup(group)
+        } label: {
+            HStack {
+                Label(group.card.name, systemImage: group.card.icon)
+                    .foregroundStyle(HabitPalette.color(named: group.card.colorName))
+
+                Spacer()
+
+                Text("\(group.habits.count)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Image(systemName: "chevron.down")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .rotationEffect(.degrees(isCollapsed(group) ? -90 : 0))
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 
