@@ -77,8 +77,37 @@ final class HabitRepositoryImpl: HabitRepository {
         entity.habitID = habitID.uuidString
         entity.date = day
         entity.completedAt = Date()
+        entity.count = 1
         try saveIfNeeded()
         return true
+    }
+
+    @discardableResult
+    func setCompletionCount(habitID: UUID, on date: Date, count: Int) throws -> Int {
+        let day = calendar.startOfDay(for: date)
+        let request = HabitCompletionEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "habitID == %@ AND date == %@", habitID.uuidString, day as NSDate)
+        let existing = try context.fetch(request).first
+
+        let clampedCount = max(0, count)
+        guard clampedCount > 0 else {
+            if let existing {
+                context.delete(existing)
+                try saveIfNeeded()
+            }
+            return 0
+        }
+
+        let entity = existing ?? HabitCompletionEntity(context: context)
+        if existing == nil {
+            entity.id = UUID().uuidString
+            entity.habitID = habitID.uuidString
+            entity.date = day
+        }
+        entity.completedAt = Date()
+        entity.count = Int16(clampedCount)
+        try saveIfNeeded()
+        return clampedCount
     }
 
     private func fetchHabitEntity(id: UUID) throws -> HabitEntity? {

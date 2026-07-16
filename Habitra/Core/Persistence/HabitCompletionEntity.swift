@@ -7,6 +7,7 @@ final class HabitCompletionEntity: NSManagedObject {
     @NSManaged var habitID: String
     @NSManaged var date: Date
     @NSManaged var completedAt: Date
+    @NSManaged var count: Int16
 
     static func fetchRequest() -> NSFetchRequest<HabitCompletionEntity> {
         NSFetchRequest<HabitCompletionEntity>(entityName: "HabitCompletionEntity")
@@ -37,7 +38,13 @@ final class HabitCompletionEntity: NSManagedObject {
         completedAt.attributeType = .dateAttributeType
         completedAt.isOptional = false
 
-        entity.properties = [id, habitID, date, completedAt]
+        let count = NSAttributeDescription()
+        count.name = "count"
+        count.attributeType = .integer16AttributeType
+        count.isOptional = false
+        count.defaultValue = 1
+
+        entity.properties = [id, habitID, date, completedAt, count]
         entity.uniquenessConstraints = [["habitID", "date"]]
         return entity
     }
@@ -50,7 +57,8 @@ extension HabitCompletionEntity {
             id: UUID(uuidString: id) ?? UUID(),
             habitID: UUID(uuidString: habitID) ?? UUID(),
             date: date,
-            completedAt: completedAt
+            completedAt: completedAt,
+            count: Int(count)
         )
     }
 }

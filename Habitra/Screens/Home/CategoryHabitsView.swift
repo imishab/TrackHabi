@@ -38,7 +38,10 @@ struct CategoryHabitsView: View {
                             isCompleted: viewModel.isCompleted(habit),
                             isEnabled: viewModel.isEnabled(habit),
                             date: viewModel.selectedDate,
-                            onToggle: { viewModel.toggle(habit) }
+                            count: viewModel.count(for: habit),
+                            onToggle: { viewModel.toggle(habit) },
+                            onIncrement: { viewModel.increment(habit) },
+                            onDecrement: { viewModel.decrement(habit) }
                         )
                         .swipeActions(edge: .leading, allowsFullSwipe: true) {
                             NavigationLink(value: habit) {

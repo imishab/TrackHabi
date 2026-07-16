@@ -8,6 +8,8 @@ final class HabitEntity: NSManagedObject {
     @NSManaged var notes: String?
     @NSManaged var icon: String
     @NSManaged var colorName: String
+    @NSManaged var typeRaw: String?
+    @NSManaged var targetCount: Int16
     @NSManaged var scheduledDaysMask: Int16
     @NSManaged var reminderTime: Date?
     @NSManaged var reminderToneRaw: String?
@@ -51,6 +53,17 @@ final class HabitEntity: NSManagedObject {
         colorName.name = "colorName"
         colorName.attributeType = .stringAttributeType
         colorName.isOptional = false
+
+        let typeRaw = NSAttributeDescription()
+        typeRaw.name = "typeRaw"
+        typeRaw.attributeType = .stringAttributeType
+        typeRaw.isOptional = true
+
+        let targetCount = NSAttributeDescription()
+        targetCount.name = "targetCount"
+        targetCount.attributeType = .integer16AttributeType
+        targetCount.isOptional = false
+        targetCount.defaultValue = 1
 
         let scheduledDaysMask = NSAttributeDescription()
         scheduledDaysMask.name = "scheduledDaysMask"
@@ -99,7 +112,7 @@ final class HabitEntity: NSManagedObject {
         categoryID.isOptional = true
 
         entity.properties = [
-            id, title, notes, icon, colorName, scheduledDaysMask,
+            id, title, notes, icon, colorName, typeRaw, targetCount, scheduledDaysMask,
             reminderTime, reminderToneRaw, startDate, endDate, createdAt, sortIndex, isArchived, categoryID
         ]
         entity.uniquenessConstraints = [["id"]]
@@ -116,6 +129,8 @@ extension HabitEntity {
             notes: notes ?? "",
             icon: icon,
             colorName: colorName,
+            type: typeRaw.flatMap(HabitType.init(rawValue:)) ?? .task,
+            targetCount: max(1, Int(targetCount)),
             scheduledDays: Weekday.set(fromMask: scheduledDaysMask),
             reminderTime: reminderTime,
             reminderTone: reminderToneRaw.flatMap(ReminderTone.init(rawValue:)) ?? .system,
@@ -134,6 +149,8 @@ extension HabitEntity {
         notes = habit.notes.isEmpty ? nil : habit.notes
         icon = habit.icon
         colorName = habit.colorName
+        typeRaw = habit.type.rawValue
+        targetCount = Int16(habit.targetCount)
         scheduledDaysMask = Weekday.mask(from: habit.scheduledDays)
         reminderTime = habit.reminderTime
         reminderToneRaw = habit.reminderTone.rawValue

@@ -6,7 +6,10 @@ struct HabitRow: View {
     let isCompleted: Bool
     var isEnabled: Bool = true
     var date: Date = Date()
+    var count: Int = 0
     let onToggle: () -> Void
+    var onIncrement: (() -> Void)? = nil
+    var onDecrement: (() -> Void)? = nil
 
     var body: some View {
         HStack(spacing: 14) {
@@ -37,15 +40,13 @@ struct HabitRow: View {
 
             Spacer()
 
-            Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
-                .font(.title2)
-                .foregroundStyle(isEnabled ? (isCompleted ? HabitPalette.color(named: habit.colorName) : .secondary) : Color.secondary.opacity(0.3))
+            trailingControl
         }
         .padding(.vertical, 4)
         .opacity(isEnabled ? 1 : 0.5)
         .contentShape(Rectangle())
         .onTapGesture {
-            guard isEnabled else { return }
+            guard habit.type == .task, isEnabled else { return }
             let willBeCompleted = !isCompleted
             onToggle()
             if willBeCompleted {
@@ -53,6 +54,50 @@ struct HabitRow: View {
             } else {
                 CompletionFeedback.playRemove()
             }
+        }
+    }
+
+    @ViewBuilder
+    private var trailingControl: some View {
+        switch habit.type {
+        case .task:
+            Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
+                .font(.title2)
+                .foregroundStyle(isEnabled ? (isCompleted ? HabitPalette.color(named: habit.colorName) : .secondary) : Color.secondary.opacity(0.3))
+
+        case .counter:
+            HStack(spacing: 10) {
+                Button {
+                    let willBeCompleted = count > 0 && count - 1 < habit.targetCount && count >= habit.targetCount
+                    onDecrement?()
+                    if willBeCompleted {
+                        CompletionFeedback.playRemove()
+                    }
+                } label: {
+                    Image(systemName: "minus.circle.fill")
+                        .font(.title3)
+                }
+                .disabled(!isEnabled || count <= 0)
+
+                Text("\(count)/\(habit.targetCount)")
+                    .font(.subheadline.weight(.semibold))
+                    .monospacedDigit()
+                    .frame(minWidth: 40)
+
+                Button {
+                    let willBeCompleted = count + 1 >= habit.targetCount && count < habit.targetCount
+                    onIncrement?()
+                    if willBeCompleted {
+                        CompletionFeedback.playComplete()
+                    }
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title3)
+                }
+                .disabled(!isEnabled)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(isEnabled ? HabitPalette.color(named: habit.colorName) : Color.secondary.opacity(0.3))
         }
     }
 

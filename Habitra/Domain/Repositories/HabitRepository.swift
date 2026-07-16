@@ -11,4 +11,8 @@ protocol HabitRepository {
 
     @discardableResult
     func toggleCompletion(habitID: UUID, on date: Date) throws -> Bool
+
+    /// Sets the completion count for a counter habit on a given date. A count of `0` removes the record.
+    @discardableResult
+    func setCompletionCount(habitID: UUID, on date: Date, count: Int) throws -> Int
 }

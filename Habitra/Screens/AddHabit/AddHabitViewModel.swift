@@ -8,6 +8,8 @@ final class AddHabitViewModel {
     var notes: String
     var icon: String
     var colorName: String
+    var type: HabitType
+    var targetCount: Int
     var scheduledDays: Set<Weekday>
     var categories: [HabitCategory] = []
     var selectedCategoryID: UUID?
@@ -38,6 +40,8 @@ final class AddHabitViewModel {
         self.notes = habit?.notes ?? ""
         self.icon = habit?.icon ?? HabitPalette.icons[0]
         self.colorName = habit?.colorName ?? HabitPalette.colorNames[0]
+        self.type = habit?.type ?? .task
+        self.targetCount = habit?.targetCount ?? 1
         self.scheduledDays = habit?.scheduledDays ?? Set(Weekday.allCases)
         self.selectedCategoryID = habit?.categoryID
 
@@ -110,6 +114,8 @@ final class AddHabitViewModel {
             notes: notes.trimmingCharacters(in: .whitespacesAndNewlines),
             icon: icon,
             colorName: colorName,
+            type: type,
+            targetCount: targetCount,
             scheduledDays: scheduledDays,
             reminderTime: isReminderEnabled ? reminderTime : nil,
             reminderTone: reminderTone,

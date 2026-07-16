@@ -127,12 +127,19 @@ final class HomeViewModel {
             var map: [UUID: Set<Date>] = [:]
             for habit in habits {
                 let completions = try habitRepository.completions(forHabit: habit.id)
-                map[habit.id] = Set(completions.map { calendar.startOfDay(for: $0.date) })
+                let metDates = completions
+                    .filter { habit.type == .task || $0.count >= habit.targetCount }
+                    .map { calendar.startOfDay(for: $0.date) }
+                map[habit.id] = Set(metDates)
             }
             completionDatesByHabit = map
 
             let todayCompletions = try habitRepository.completions(on: Date())
-            completedTodayIDs = Set(todayCompletions.map(\.habitID))
+            let habitsByID = Dictionary(uniqueKeysWithValues: habits.map { ($0.id, $0) })
+            completedTodayIDs = Set(todayCompletions.filter { completion in
+                guard let habit = habitsByID[completion.habitID] else { return false }
+                return habit.type == .task || completion.count >= habit.targetCount
+            }.map(\.habitID))
         } catch {
             self.error = error
         }

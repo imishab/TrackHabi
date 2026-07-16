@@ -6,6 +6,7 @@ final class CategoryHabitsViewModel {
 
     private(set) var habits: [Habit] = []
     private(set) var completedHabitIDs: Set<UUID> = []
+    private(set) var completionCounts: [UUID: Int] = [:]
     private(set) var card: CategoryCard
     var selectedDate: Date = Date() {
         didSet { loadCompletions() }
@@ -65,7 +66,16 @@ final class CategoryHabitsViewModel {
     }
 
     func isCompleted(_ habit: Habit) -> Bool {
-        completedHabitIDs.contains(habit.id)
+        switch habit.type {
+        case .task:
+            return completedHabitIDs.contains(habit.id)
+        case .counter:
+            return count(for: habit) >= habit.targetCount
+        }
+    }
+
+    func count(for habit: Habit) -> Int {
+        completionCounts[habit.id] ?? 0
     }
 
     func toggle(_ habit: Habit) {
@@ -77,6 +87,26 @@ final class CategoryHabitsViewModel {
             } else {
                 completedHabitIDs.remove(habit.id)
             }
+        } catch {
+            self.error = error
+        }
+    }
+
+    func increment(_ habit: Habit) {
+        guard isEnabled(habit) else { return }
+        do {
+            let newCount = try repository.setCompletionCount(habitID: habit.id, on: selectedDate, count: count(for: habit) + 1)
+            completionCounts[habit.id] = newCount
+        } catch {
+            self.error = error
+        }
+    }
+
+    func decrement(_ habit: Habit) {
+        guard isEnabled(habit), count(for: habit) > 0 else { return }
+        do {
+            let newCount = try repository.setCompletionCount(habitID: habit.id, on: selectedDate, count: count(for: habit) - 1)
+            completionCounts[habit.id] = newCount
         } catch {
             self.error = error
         }
@@ -100,6 +130,7 @@ final class CategoryHabitsViewModel {
         do {
             let completions = try repository.completions(on: selectedDate)
             completedHabitIDs = Set(completions.map(\.habitID))
+            completionCounts = Dictionary(uniqueKeysWithValues: completions.map { ($0.habitID, $0.count) })
         } catch {
             self.error = error
         }

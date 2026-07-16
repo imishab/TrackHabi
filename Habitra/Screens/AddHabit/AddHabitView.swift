@@ -41,6 +41,23 @@ struct AddHabitView: View {
                         .lineLimit(2...4)
                 }
 
+                Section("Type") {
+                    Picker("Habit Type", selection: $viewModel.type) {
+                        ForEach(HabitType.allCases) { type in
+                            Text(type.displayName).tag(type)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    if viewModel.type == .counter {
+                        Stepper(
+                            "Target Count: \(viewModel.targetCount)",
+                            value: $viewModel.targetCount,
+                            in: 1...999
+                        )
+                    }
+                }
+
                 Section("Icon") {
                     TabView {
                         ForEach(Array(iconPages.enumerated()), id: \.offset) { _, page in

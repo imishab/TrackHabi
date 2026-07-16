@@ -20,7 +20,9 @@ final class HabitDetailViewModel {
     func load() {
         do {
             let completions = try repository.completions(forHabit: habit.id)
-            let dates = completions.map { calendar.startOfDay(for: $0.date) }
+            let dates = completions
+                .filter { habit.type == .task || $0.count >= habit.targetCount }
+                .map { calendar.startOfDay(for: $0.date) }
             completedDates = Set(dates)
             stats = HabitStats.calculate(habit: habit, completionDates: dates, calendar: calendar)
         } catch {
@@ -34,8 +36,15 @@ final class HabitDetailViewModel {
 
     func toggle(_ date: Date) {
         do {
-            let isNowCompleted = try repository.toggleCompletion(habitID: habit.id, on: date)
             let day = calendar.startOfDay(for: date)
+            let isNowCompleted: Bool
+            switch habit.type {
+            case .task:
+                isNowCompleted = try repository.toggleCompletion(habitID: habit.id, on: date)
+            case .counter:
+                let newCount = isCompleted(on: date) ? 0 : habit.targetCount
+                isNowCompleted = try repository.setCompletionCount(habitID: habit.id, on: date, count: newCount) > 0
+            }
             if isNowCompleted {
                 completedDates.insert(day)
             } else {
