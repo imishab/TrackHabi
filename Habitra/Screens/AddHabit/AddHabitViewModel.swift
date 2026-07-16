@@ -10,6 +10,7 @@ final class AddHabitViewModel {
     var colorName: String
     var type: HabitType
     var targetCount: Int
+    var unit: String
     var scheduledDays: Set<Weekday>
     var categories: [HabitCategory] = []
     var selectedCategoryID: UUID?
@@ -42,6 +43,7 @@ final class AddHabitViewModel {
         self.colorName = habit?.colorName ?? HabitPalette.colorNames[0]
         self.type = habit?.type ?? .task
         self.targetCount = habit?.targetCount ?? 1
+        self.unit = habit?.unit ?? ""
         self.scheduledDays = habit?.scheduledDays ?? Set(Weekday.allCases)
         self.selectedCategoryID = habit?.categoryID
 
@@ -116,6 +118,7 @@ final class AddHabitViewModel {
             colorName: colorName,
             type: type,
             targetCount: targetCount,
+            unit: type == .counter ? unit : "",
             scheduledDays: scheduledDays,
             reminderTime: isReminderEnabled ? reminderTime : nil,
             reminderTone: reminderTone,

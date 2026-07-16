@@ -79,7 +79,7 @@ struct HabitRow: View {
                 }
                 .disabled(!isEnabled || count <= 0)
 
-                Text("\(count)/\(habit.targetCount)")
+                Text("\(count)/\(habit.targetCount)\(habit.unit.isEmpty ? "" : " " + habit.unit)")
                     .font(.subheadline.weight(.semibold))
                     .monospacedDigit()
                     .frame(minWidth: 40)

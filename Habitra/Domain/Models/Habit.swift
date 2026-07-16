@@ -8,6 +8,7 @@ struct Habit: Identifiable, Hashable {
     var colorName: String
     var type: HabitType
     var targetCount: Int
+    var unit: String
     var scheduledDays: Set<Weekday>
     var reminderTime: Date?
     var reminderTone: ReminderTone
@@ -26,6 +27,7 @@ struct Habit: Identifiable, Hashable {
         colorName: String = "mint",
         type: HabitType = .task,
         targetCount: Int = 1,
+        unit: String = "",
         scheduledDays: Set<Weekday> = Set(Weekday.allCases),
         reminderTime: Date? = nil,
         reminderTone: ReminderTone = .system,
@@ -43,6 +45,7 @@ struct Habit: Identifiable, Hashable {
         self.colorName = colorName
         self.type = type
         self.targetCount = max(1, targetCount)
+        self.unit = unit
         self.scheduledDays = scheduledDays
         self.reminderTime = reminderTime
         self.reminderTone = reminderTone

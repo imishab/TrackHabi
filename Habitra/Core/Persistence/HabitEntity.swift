@@ -10,6 +10,7 @@ final class HabitEntity: NSManagedObject {
     @NSManaged var colorName: String
     @NSManaged var typeRaw: String?
     @NSManaged var targetCount: Int16
+    @NSManaged var unit: String?
     @NSManaged var scheduledDaysMask: Int16
     @NSManaged var reminderTime: Date?
     @NSManaged var reminderToneRaw: String?
@@ -65,6 +66,11 @@ final class HabitEntity: NSManagedObject {
         targetCount.isOptional = false
         targetCount.defaultValue = 1
 
+        let unit = NSAttributeDescription()
+        unit.name = "unit"
+        unit.attributeType = .stringAttributeType
+        unit.isOptional = true
+
         let scheduledDaysMask = NSAttributeDescription()
         scheduledDaysMask.name = "scheduledDaysMask"
         scheduledDaysMask.attributeType = .integer16AttributeType
@@ -112,7 +118,7 @@ final class HabitEntity: NSManagedObject {
         categoryID.isOptional = true
 
         entity.properties = [
-            id, title, notes, icon, colorName, typeRaw, targetCount, scheduledDaysMask,
+            id, title, notes, icon, colorName, typeRaw, targetCount, unit, scheduledDaysMask,
             reminderTime, reminderToneRaw, startDate, endDate, createdAt, sortIndex, isArchived, categoryID
         ]
         entity.uniquenessConstraints = [["id"]]
@@ -131,6 +137,7 @@ extension HabitEntity {
             colorName: colorName,
             type: typeRaw.flatMap(HabitType.init(rawValue:)) ?? .task,
             targetCount: max(1, Int(targetCount)),
+            unit: unit ?? "",
             scheduledDays: Weekday.set(fromMask: scheduledDaysMask),
             reminderTime: reminderTime,
             reminderTone: reminderToneRaw.flatMap(ReminderTone.init(rawValue:)) ?? .system,
@@ -151,6 +158,7 @@ extension HabitEntity {
         colorName = habit.colorName
         typeRaw = habit.type.rawValue
         targetCount = Int16(habit.targetCount)
+        unit = habit.unit.isEmpty ? nil : habit.unit
         scheduledDaysMask = Weekday.mask(from: habit.scheduledDays)
         reminderTime = habit.reminderTime
         reminderToneRaw = habit.reminderTone.rawValue

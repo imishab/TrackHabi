@@ -5,6 +5,7 @@ struct AddHabitView: View {
 
     @State private var viewModel: AddHabitViewModel
     @State private var showingAddCategory = false
+    @State private var isCustomUnitSelected: Bool
     @Environment(\.dismiss) private var dismiss
     let onSave: (Habit) -> Void
 
@@ -17,6 +18,23 @@ struct AddHabitView: View {
         }
     }
 
+    private static let customUnitTag = "__custom__"
+
+    private var unitBinding: Binding<String> {
+        Binding(
+            get: { isCustomUnitSelected ? Self.customUnitTag : viewModel.unit },
+            set: { newValue in
+                if newValue == Self.customUnitTag {
+                    isCustomUnitSelected = true
+                    viewModel.unit = ""
+                } else {
+                    isCustomUnitSelected = false
+                    viewModel.unit = newValue
+                }
+            }
+        )
+    }
+
     private var customColorBinding: Binding<Color> {
         Binding(
             get: { HabitPalette.color(named: viewModel.colorName) },
@@ -25,7 +43,9 @@ struct AddHabitView: View {
     }
 
     init(habit: Habit? = nil, onSave: @escaping (Habit) -> Void) {
-        _viewModel = State(initialValue: AddHabitViewModel(habit: habit))
+        let viewModel = AddHabitViewModel(habit: habit)
+        _viewModel = State(initialValue: viewModel)
+        _isCustomUnitSelected = State(initialValue: HabitUnit(rawValue: viewModel.unit) == nil)
         self.onSave = onSave
     }
 
@@ -55,6 +75,17 @@ struct AddHabitView: View {
                             value: $viewModel.targetCount,
                             in: 1...999
                         )
+
+                        Picker("Unit", selection: unitBinding) {
+                            ForEach(HabitUnit.allCases) { preset in
+                                Text(preset.displayName).tag(preset.rawValue)
+                            }
+                            Text("Custom").tag(Self.customUnitTag)
+                        }
+
+                        if isCustomUnitSelected {
+                            TextField("e.g. rounds, laps, pushups", text: $viewModel.unit)
+                        }
                     }
                 }
 
