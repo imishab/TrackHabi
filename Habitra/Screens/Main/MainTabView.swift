@@ -63,6 +63,10 @@ struct MainTabView: View {
             guard habitID != nil else { return }
             selectedTab = .habit
         }
+        .onChange(of: router.pendingTaskID) { _, taskID in
+            guard taskID != nil else { return }
+            selectedTab = .tasks
+        }
         .sheet(isPresented: $showingOnboarding) {
             OnboardingView {
                 showingOnboarding = false

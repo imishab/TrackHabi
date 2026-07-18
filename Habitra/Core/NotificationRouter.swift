@@ -8,6 +8,7 @@ final class NotificationRouter {
     static let shared = NotificationRouter()
 
     var pendingHabitID: UUID?
+    var pendingTaskID: UUID?
 
     private init() {}
 }

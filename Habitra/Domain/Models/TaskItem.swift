@@ -35,7 +35,7 @@ struct TaskItem: Identifiable, Hashable {
 
     var isOverdue: Bool {
         guard !isCompleted, let dueDate else { return false }
-        return Calendar.current.startOfDay(for: dueDate) < Calendar.current.startOfDay(for: Date())
+        return dueDate < Date()
     }
 
     var isDueToday: Bool {

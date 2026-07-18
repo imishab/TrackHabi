@@ -13,6 +13,8 @@ struct TasksView: View {
     @State private var selectedTab: TaskTab = .todo
     @State private var showingAddTask = false
     @State private var editingTask: TaskItem?
+    @State private var router = NotificationRouter.shared
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         NavigationStack {
@@ -54,6 +56,15 @@ struct TasksView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: .taskDataDidChange)) { _ in
                 viewModel.load()
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                guard newPhase == .active else { return }
+                viewModel.load()
+            }
+            .onChange(of: router.pendingTaskID) { _, taskID in
+                guard taskID != nil else { return }
+                viewModel.load()
+                router.pendingTaskID = nil
             }
         }
     }
