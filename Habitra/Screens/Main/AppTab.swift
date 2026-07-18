@@ -5,7 +5,7 @@ enum AppTab: Int, Hashable, Identifiable, CaseIterable {
     case home
     case habit
     case add
-    case analytics
+    case tasks
     case settings
 
     var id: Int { rawValue }
@@ -15,7 +15,7 @@ enum AppTab: Int, Hashable, Identifiable, CaseIterable {
         case .home:      "Home"
         case .habit:     "Habit"
         case .add:       "Add"
-        case .analytics: "Analytic"
+        case .tasks:     "Tasks"
         case .settings:  "Setting"
         }
     }
@@ -25,7 +25,7 @@ enum AppTab: Int, Hashable, Identifiable, CaseIterable {
         case .home:      "house.fill"
         case .habit:     "checklist"
         case .add:       "plus.circle.fill"
-        case .analytics: "chart.bar.fill"
+        case .tasks:     "checklist.checked"
         case .settings:  "gearshape"
         }
     }
@@ -35,7 +35,6 @@ enum AppTab: Int, Hashable, Identifiable, CaseIterable {
         switch self {
         case .home:      "tab-home"
         case .habit:     "tab-habit"
-        case .analytics: "tab-analytics"
         default:         nil
         }
     }

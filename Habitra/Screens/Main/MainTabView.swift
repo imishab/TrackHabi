@@ -4,6 +4,7 @@ struct MainTabView: View {
 
     @State private var selectedTab: AppTab = .home
     @State private var showingAddHabit = false
+    @State private var showingAddTask = false
     @State private var showingOnboarding = !UserProfileStore.shared.hasCompletedOnboarding
     @State private var router = NotificationRouter.shared
 
@@ -27,10 +28,10 @@ struct MainTabView: View {
                 Color.clear
             }
 
-            Tab(AppTab.analytics.title,
-                image: AppTab.analytics.customImageName ?? AppTab.analytics.systemImage,
-                value: .analytics) {
-                AnalyticsView()
+            Tab(AppTab.tasks.title,
+                image: AppTab.tasks.customImageName ?? AppTab.tasks.systemImage,
+                value: .tasks) {
+                TasksView()
             }
 
             Tab(AppTab.settings.title,
@@ -43,10 +44,17 @@ struct MainTabView: View {
         .onChange(of: selectedTab) { previousTab, newTab in
             guard newTab == .add else { return }
             selectedTab = previousTab
-            showingAddHabit = true
+            if previousTab == .tasks {
+                showingAddTask = true
+            } else {
+                showingAddHabit = true
+            }
         }
         .sheet(isPresented: $showingAddHabit) {
             AddHabitView { _ in NotificationCenter.default.post(name: .habitDataDidChange, object: nil) }
+        }
+        .sheet(isPresented: $showingAddTask) {
+            AddTaskView { _ in NotificationCenter.default.post(name: .taskDataDidChange, object: nil) }
         }
         .onChange(of: router.pendingHabitID) { _, habitID in
             guard habitID != nil else { return }

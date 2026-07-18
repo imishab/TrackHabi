@@ -49,6 +49,14 @@ struct SettingsView: View {
 
                 Section {
                     NavigationLink {
+                        AnalyticsView()
+                    } label: {
+                        Label("Analytics", systemImage: "chart.bar.fill")
+                    }
+                }
+
+                Section {
+                    NavigationLink {
                         AboutView()
                     } label: {
                         Label("About Us", systemImage: "info.circle")

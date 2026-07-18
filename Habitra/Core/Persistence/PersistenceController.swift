@@ -35,7 +35,8 @@ final class PersistenceController {
         model.entities = [
             HabitEntity.makeEntityDescription(),
             HabitCompletionEntity.makeEntityDescription(),
-            HabitCategoryEntity.makeEntityDescription()
+            HabitCategoryEntity.makeEntityDescription(),
+            TaskEntity.makeEntityDescription()
         ]
         return model
     }
