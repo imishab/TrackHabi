@@ -94,7 +94,7 @@ struct HabitRow: View {
                     Image(systemName: "plus.circle.fill")
                         .font(.title3)
                 }
-                .disabled(!isEnabled)
+                .disabled(!isEnabled || count >= habit.targetCount)
             }
             .buttonStyle(.plain)
             .foregroundStyle(isEnabled ? HabitPalette.color(named: habit.colorName) : Color.secondary.opacity(0.3))

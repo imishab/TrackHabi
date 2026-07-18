@@ -93,7 +93,7 @@ final class CategoryHabitsViewModel {
     }
 
     func increment(_ habit: Habit) {
-        guard isEnabled(habit) else { return }
+        guard isEnabled(habit), count(for: habit) < habit.targetCount else { return }
         do {
             let newCount = try repository.setCompletionCount(habitID: habit.id, on: selectedDate, count: count(for: habit) + 1)
             completionCounts[habit.id] = newCount
