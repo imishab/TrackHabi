@@ -64,6 +64,12 @@ final class TasksViewModel {
             if let index = tasks.firstIndex(where: { $0.id == task.id }) {
                 tasks[index].isCompleted = isNowCompleted
                 tasks[index].completedAt = isNowCompleted ? Date() : nil
+
+                if isNowCompleted {
+                    NotificationScheduler.shared.cancelDueReminder(for: task.id)
+                } else {
+                    NotificationScheduler.shared.scheduleDueReminder(for: tasks[index], username: UserProfileStore.shared.name)
+                }
             }
         } catch {
             self.error = error
@@ -74,6 +80,7 @@ final class TasksViewModel {
         do {
             try repository.delete(id: task.id)
             tasks.removeAll { $0.id == task.id }
+            NotificationScheduler.shared.cancelDueReminder(for: task.id)
         } catch {
             self.error = error
         }

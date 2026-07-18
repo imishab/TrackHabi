@@ -7,9 +7,12 @@ final class NotificationScheduler {
     static let shared = NotificationScheduler()
 
     static let habitIDKey = "habitID"
+    static let taskIDKey = "taskID"
 
     private let center = UNUserNotificationCenter.current()
     private let identifierPrefix = "habit-reminder-"
+    private let taskIdentifierPrefix = "task-due-"
+    private let taskDueSoundFileName = "1.mp3"
 
     private init() {}
 
@@ -81,6 +84,47 @@ final class NotificationScheduler {
             )
             try? await center.add(request)
         }
+    }
+
+    /// Cancels any existing due reminder for the task, then schedules a one-time notification that fires
+    /// at the task's due date, unless the task has no due date, is already completed, or the due date has passed.
+    func scheduleDueReminder(for task: TaskItem, username: String) {
+        Task { await scheduleTaskDueAsync(for: task, username: username) }
+    }
+
+    func cancelDueReminder(for taskID: UUID) {
+        Task { await cancelTaskAsync(for: taskID) }
+    }
+
+    private func scheduleTaskDueAsync(for task: TaskItem, username: String) async {
+        await cancelTaskAsync(for: task.id)
+
+        guard let dueDate = task.dueDate, !task.isCompleted, dueDate > Date() else { return }
+
+        let trimmedName = username.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        let content = UNMutableNotificationContent()
+        content.title = trimmedName.isEmpty ? "Task Due" : "Hey \(trimmedName)"
+        content.body = "\"\(task.title)\" is due now"
+        content.sound = UNNotificationSound(named: UNNotificationSoundName(taskDueSoundFileName))
+        content.userInfo = [Self.taskIDKey: task.id.uuidString]
+
+        let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+        let request = UNNotificationRequest(
+            identifier: taskIdentifier(taskID: task.id),
+            content: content,
+            trigger: trigger
+        )
+        try? await center.add(request)
+    }
+
+    private func cancelTaskAsync(for taskID: UUID) async {
+        center.removePendingNotificationRequests(withIdentifiers: [taskIdentifier(taskID: taskID)])
+    }
+
+    private func taskIdentifier(taskID: UUID) -> String {
+        "\(taskIdentifierPrefix)\(taskID.uuidString)"
     }
 
     private func cancelAsync(for habitID: UUID) async {

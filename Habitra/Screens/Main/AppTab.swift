@@ -35,6 +35,7 @@ enum AppTab: Int, Hashable, Identifiable, CaseIterable {
         switch self {
         case .home:      "tab-home"
         case .habit:     "tab-habit"
+        case .tasks:     "tab-task"
         default:         nil
         }
     }

@@ -15,12 +15,16 @@ final class AddTaskViewModel {
     private let editingID: UUID?
     private let createdAt: Date
     private let sortIndex: Int
+    private let isCompleted: Bool
+    private let completedAt: Date?
 
     init(task: TaskItem? = nil, repository: TaskRepository? = nil) {
         self.repository = repository ?? TaskRepositoryImpl()
         self.editingID = task?.id
         self.createdAt = task?.createdAt ?? Date()
         self.sortIndex = task?.sortIndex ?? Int(Date().timeIntervalSince1970)
+        self.isCompleted = task?.isCompleted ?? false
+        self.completedAt = task?.completedAt
         self.title = task?.title ?? ""
         self.notes = task?.notes ?? ""
         self.priority = task?.priority ?? .medium
@@ -42,7 +46,9 @@ final class AddTaskViewModel {
             notes: notes.trimmingCharacters(in: .whitespacesAndNewlines),
             priority: priority,
             dueDate: isDueDateEnabled ? dueDate : nil,
+            isCompleted: isCompleted,
             createdAt: createdAt,
+            completedAt: completedAt,
             sortIndex: sortIndex
         )
         do {
@@ -50,6 +56,16 @@ final class AddTaskViewModel {
                 try repository.update(task)
             } else {
                 try repository.add(task)
+            }
+            if task.dueDate != nil {
+                Task {
+                    let granted = await NotificationScheduler.shared.requestAuthorizationIfNeeded()
+                    guard granted else { return }
+                    AppSettingsStore.shared.notificationsEnabled = true
+                    NotificationScheduler.shared.scheduleDueReminder(for: task, username: UserProfileStore.shared.name)
+                }
+            } else {
+                NotificationScheduler.shared.cancelDueReminder(for: task.id)
             }
             return task
         } catch {
