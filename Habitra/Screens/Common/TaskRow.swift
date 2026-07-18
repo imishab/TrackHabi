@@ -35,6 +35,15 @@ struct TaskRow: View {
                                 .foregroundStyle(task.isOverdue ? .red : .secondary)
                         }
 
+                        if task.isOverdue {
+                            Text("Due")
+                                .font(.caption2.weight(.bold))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Capsule().fill(Color.red.opacity(0.15)))
+                                .foregroundStyle(.red)
+                        }
+
                         if !task.isCompleted {
                             Text(task.priority.displayName)
                                 .font(.caption2.weight(.semibold))
