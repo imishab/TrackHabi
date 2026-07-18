@@ -3,8 +3,10 @@ import SwiftUI
 struct MainTabView: View {
 
     @State private var selectedTab: AppTab = .home
+    @State private var showingAddChoice = false
     @State private var showingAddHabit = false
     @State private var showingAddTask = false
+    @State private var pendingAddChoice: AddChoice?
     @State private var showingOnboarding = !UserProfileStore.shared.hasCompletedOnboarding
     @State private var router = NotificationRouter.shared
 
@@ -44,10 +46,11 @@ struct MainTabView: View {
         .onChange(of: selectedTab) { previousTab, newTab in
             guard newTab == .add else { return }
             selectedTab = previousTab
-            if previousTab == .tasks {
-                showingAddTask = true
-            } else {
-                showingAddHabit = true
+            showingAddChoice = true
+        }
+        .sheet(isPresented: $showingAddChoice, onDismiss: presentPendingAddSheet) {
+            AddChoiceSheet { choice in
+                pendingAddChoice = choice
             }
         }
         .sheet(isPresented: $showingAddHabit) {
@@ -67,6 +70,15 @@ struct MainTabView: View {
             .presentationDetents([.medium])
             .presentationDragIndicator(.hidden)
             .interactiveDismissDisabled(true)
+        }
+    }
+
+    private func presentPendingAddSheet() {
+        guard let choice = pendingAddChoice else { return }
+        pendingAddChoice = nil
+        switch choice {
+        case .habit: showingAddHabit = true
+        case .task:  showingAddTask = true
         }
     }
 }

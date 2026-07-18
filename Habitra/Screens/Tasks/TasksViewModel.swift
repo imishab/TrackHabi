@@ -24,10 +24,12 @@ final class TasksViewModel {
         tasks.count { !$0.isCompleted }
     }
 
-    var sections: [TaskSection] {
-        let sorted = tasks.sorted(by: TaskItem.displayOrder)
-        let active = sorted.filter { !$0.isCompleted }
-        let completed = sorted.filter(\.isCompleted)
+    var completedCount: Int {
+        tasks.count { $0.isCompleted }
+    }
+
+    var todoSections: [TaskSection] {
+        let active = tasks.filter { !$0.isCompleted }.sorted(by: TaskItem.displayOrder)
 
         let overdue = active.filter(\.isOverdue)
         let today = active.filter { $0.isDueToday && !$0.isOverdue }
@@ -39,8 +41,13 @@ final class TasksViewModel {
         if !today.isEmpty { result.append(TaskSection(id: "today", title: "Today", tasks: today)) }
         if !upcoming.isEmpty { result.append(TaskSection(id: "upcoming", title: "Upcoming", tasks: upcoming)) }
         if !noDueDate.isEmpty { result.append(TaskSection(id: "noDueDate", title: "No Due Date", tasks: noDueDate)) }
-        if !completed.isEmpty { result.append(TaskSection(id: "completed", title: "Completed", tasks: completed)) }
         return result
+    }
+
+    var completedTasks: [TaskItem] {
+        tasks
+            .filter(\.isCompleted)
+            .sorted { ($0.completedAt ?? $0.createdAt) > ($1.completedAt ?? $1.createdAt) }
     }
 
     func load() {

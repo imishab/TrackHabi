@@ -1,62 +1,36 @@
 import SwiftUI
 
+private enum TaskTab: String, CaseIterable, Identifiable {
+    case todo = "Todo"
+    case completed = "Completed"
+
+    var id: String { rawValue }
+}
+
 struct TasksView: View {
 
     @State private var viewModel = TasksViewModel()
+    @State private var selectedTab: TaskTab = .todo
     @State private var showingAddTask = false
     @State private var editingTask: TaskItem?
 
     var body: some View {
         NavigationStack {
-            Group {
-                if viewModel.tasks.isEmpty {
-                    ContentUnavailableView(
-                        "No Tasks Yet",
-                        systemImage: "checklist",
-                        description: Text("Tap + to add your first task.")
-                    )
-                } else {
-                    List {
-                        ForEach(viewModel.sections) { section in
-                            Section {
-                                ForEach(section.tasks) { task in
-                                    TaskRow(task: task, onToggle: { viewModel.toggle(task) })
-                                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                            Button {
-                                                editingTask = task
-                                            } label: {
-                                                Label("Edit", systemImage: "pencil")
-                                            }
-                                            .tint(.blue)
-                                        }
-                                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                            Button(role: .destructive) {
-                                                viewModel.delete(task)
-                                            } label: {
-                                                Label("Delete", systemImage: "trash")
-                                            }
-                                        }
-                                }
-                            } header: {
-                                HStack {
-                                    Text(section.title)
-                                    Spacer()
-                                    Text("\(section.tasks.count)")
-                                }
-                            }
-                        }
+            VStack(spacing: 0) {
+                Picker("Tab", selection: $selectedTab) {
+                    ForEach(TaskTab.allCases) { tab in
+                        Text(tabLabel(tab)).tag(tab)
                     }
                 }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+                .padding(.top, 8)
+                .padding(.bottom, 4)
+
+                content
             }
             .navigationTitle("Tasks")
             .toolbar {
-                ToolbarItem(placement: .principal) {
-                    if viewModel.activeCount > 0 {
-                        Text("\(viewModel.activeCount) task\(viewModel.activeCount == 1 ? "" : "s") left")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showingAddTask = true
@@ -81,6 +55,77 @@ struct TasksView: View {
             .onReceive(NotificationCenter.default.publisher(for: .taskDataDidChange)) { _ in
                 viewModel.load()
             }
+        }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch selectedTab {
+        case .todo:
+            if viewModel.todoSections.isEmpty {
+                ContentUnavailableView(
+                    "No Tasks",
+                    systemImage: "checklist",
+                    description: Text("Tap + to add your first task.")
+                )
+            } else {
+                List {
+                    ForEach(viewModel.todoSections) { section in
+                        Section {
+                            ForEach(section.tasks) { task in
+                                taskRow(task)
+                            }
+                        } header: {
+                            HStack {
+                                Text(section.title)
+                                Spacer()
+                                Text("\(section.tasks.count)")
+                            }
+                        }
+                    }
+                }
+            }
+
+        case .completed:
+            if viewModel.completedTasks.isEmpty {
+                ContentUnavailableView(
+                    "No Completed Tasks",
+                    systemImage: "checkmark.circle",
+                    description: Text("Tasks you finish will show up here.")
+                )
+            } else {
+                List {
+                    ForEach(viewModel.completedTasks) { task in
+                        taskRow(task)
+                    }
+                }
+            }
+        }
+    }
+
+    private func taskRow(_ task: TaskItem) -> some View {
+        TaskRow(task: task, onToggle: { viewModel.toggle(task) })
+            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                Button {
+                    editingTask = task
+                } label: {
+                    Label("Edit", systemImage: "pencil")
+                }
+                .tint(.blue)
+            }
+            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                Button(role: .destructive) {
+                    viewModel.delete(task)
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            }
+    }
+
+    private func tabLabel(_ tab: TaskTab) -> String {
+        switch tab {
+        case .todo:      viewModel.activeCount > 0 ? "\(tab.rawValue) (\(viewModel.activeCount))" : tab.rawValue
+        case .completed: viewModel.completedCount > 0 ? "\(tab.rawValue) (\(viewModel.completedCount))" : tab.rawValue
         }
     }
 }
