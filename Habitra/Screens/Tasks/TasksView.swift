@@ -69,46 +69,57 @@ struct TasksView: View {
         }
     }
 
-    @ViewBuilder
     private var content: some View {
-        switch selectedTab {
-        case .todo:
-            if viewModel.todoSections.isEmpty {
-                ContentUnavailableView(
-                    "No Tasks",
-                    systemImage: "checklist",
-                    description: Text("Tap + to add your first task.")
-                )
-            } else {
-                List {
-                    ForEach(viewModel.todoSections) { section in
-                        Section {
-                            ForEach(section.tasks) { task in
-                                taskRow(task)
-                            }
-                        } header: {
-                            HStack {
-                                Text(section.title)
-                                Spacer()
-                                Text("\(section.tasks.count)")
-                            }
+        TabView(selection: $selectedTab) {
+            todoList
+                .tag(TaskTab.todo)
+
+            completedList
+                .tag(TaskTab.completed)
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .animation(.easeInOut(duration: 0.2), value: selectedTab)
+    }
+
+    @ViewBuilder
+    private var todoList: some View {
+        if viewModel.todoSections.isEmpty {
+            ContentUnavailableView(
+                "No Tasks",
+                systemImage: "checklist",
+                description: Text("Tap + to add your first task.")
+            )
+        } else {
+            List {
+                ForEach(viewModel.todoSections) { section in
+                    Section {
+                        ForEach(section.tasks) { task in
+                            taskRow(task)
+                        }
+                    } header: {
+                        HStack {
+                            Text(section.title)
+                            Spacer()
+                            Text("\(section.tasks.count)")
                         }
                     }
                 }
             }
+        }
+    }
 
-        case .completed:
-            if viewModel.completedTasks.isEmpty {
-                ContentUnavailableView(
-                    "No Completed Tasks",
-                    systemImage: "checkmark.circle",
-                    description: Text("Tasks you finish will show up here.")
-                )
-            } else {
-                List {
-                    ForEach(viewModel.completedTasks) { task in
-                        taskRow(task)
-                    }
+    @ViewBuilder
+    private var completedList: some View {
+        if viewModel.completedTasks.isEmpty {
+            ContentUnavailableView(
+                "No Completed Tasks",
+                systemImage: "checkmark.circle",
+                description: Text("Tasks you finish will show up here.")
+            )
+        } else {
+            List {
+                ForEach(viewModel.completedTasks) { task in
+                    taskRow(task)
                 }
             }
         }
