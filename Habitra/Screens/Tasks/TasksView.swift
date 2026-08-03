@@ -13,6 +13,7 @@ struct TasksView: View {
     @State private var selectedTab: TaskTab = .todo
     @State private var showingAddTask = false
     @State private var editingTask: TaskItem?
+    @State private var taskPendingDelete: TaskItem?
     @State private var router = NotificationRouter.shared
     @Environment(\.scenePhase) private var scenePhase
 
@@ -65,6 +66,26 @@ struct TasksView: View {
                 guard taskID != nil else { return }
                 viewModel.load()
                 router.pendingTaskID = nil
+            }
+            .confirmationDialog(
+                "Delete Task?",
+                isPresented: Binding(
+                    get: { taskPendingDelete != nil },
+                    set: { isPresented in if !isPresented { taskPendingDelete = nil } }
+                ),
+                titleVisibility: .visible
+            ) {
+                Button("Delete", role: .destructive) {
+                    if let task = taskPendingDelete {
+                        viewModel.delete(task)
+                    }
+                    taskPendingDelete = nil
+                }
+                Button("Cancel", role: .cancel) {
+                    taskPendingDelete = nil
+                }
+            } message: {
+                Text("This will permanently remove \"\(taskPendingDelete?.title ?? "this task")\".")
             }
         }
     }
@@ -137,7 +158,20 @@ struct TasksView: View {
             }
             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                 Button(role: .destructive) {
-                    viewModel.delete(task)
+                    taskPendingDelete = task
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            }
+            .contextMenu {
+                Button {
+                    editingTask = task
+                } label: {
+                    Label("Edit", systemImage: "pencil")
+                }
+
+                Button(role: .destructive) {
+                    taskPendingDelete = task
                 } label: {
                     Label("Delete", systemImage: "trash")
                 }
